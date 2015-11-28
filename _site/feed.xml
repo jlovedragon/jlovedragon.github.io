@@ -1,0 +1,1750 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Yong Yuan - Blog</title>
+    <description>On Software Engineering, Lean Startup, Agile and Productivity</description>
+    <link>http://yongyuan.name</link>
+    <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Ubuntu14.04编译OpenJDK7</title>
+      <description>&lt;p&gt;最近在看&lt;a href=&quot;http://book.douban.com/subject/6522893/&quot;&gt;深入理解Java虚拟机&lt;/a&gt;，第一章有讲到自己编译OpenJDK7，故用Ubuntu14.04实践下。&lt;/p&gt;
+
+&lt;h2 id=&quot;构建编译环境&quot;&gt;构建编译环境&lt;/h2&gt;
+
+&lt;h3 id=&quot;jdk1.7.0_45&quot;&gt;JDK1.7.0_45&lt;/h3&gt;
+
+&lt;p&gt;到oracle官网上下载JDK1.7.0_45，解压到指定目录。
+&lt;code&gt;shell
+sudo tar zxvf jdk-7u45-linux-x64.tar.gz -C /usr/lib/jvm
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;ant1.9.6&quot;&gt;Ant1.9.6&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-shell&quot; data-lang=&quot;shell&quot;&gt;sudo tar zxvf apache-ant-1.9.6-bin.tar.gz -C /usr/lib/ant
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&quot;配置环境变量&quot;&gt;配置环境变量&lt;/h3&gt;
+
+&lt;p&gt;/etc/profile
+&lt;code&gt;shell
+export JAVA_HOME=/usr/lib/jvm/jdk1.7.0_45  
+export ANT_HOME=/usr/lib/ant/apache-ant-1.9.6
+export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar    
+PATH=$CLASSPATH:ANT_HOME/bin:$JAVA_HOME/bin:$PATH  
+export PATH 
+&lt;/code&gt;
+&lt;code&gt;source /etc/profile&lt;/code&gt;使环境变量生效&lt;/p&gt;
+
+&lt;h2 id=&quot;编译&quot;&gt;编译&lt;/h2&gt;
+
+&lt;h3 id=&quot;编写编译脚本&quot;&gt;编写编译脚本&lt;/h3&gt;
+
+&lt;p&gt;在下载的OpenJDK7的源码目录下新建build.sh，编写如下脚本
+```shell&lt;/p&gt;
+
+&lt;h1 id=&quot;!/bin/bash&quot;&gt;!/bin/bash&lt;/h1&gt;
+
+&lt;h1 id=&quot;设置语言&quot;&gt;设置语言&lt;/h1&gt;
+
+&lt;p&gt;export LANG=C   &lt;/p&gt;
+
+&lt;h1 id=&quot;jdk安装路径，必须设置&quot;&gt;JDK安装路径，必须设置&lt;/h1&gt;
+
+&lt;p&gt;export ALT_BOOTDIR=/usr/lib/jvm/jdk1.7.0_45&lt;/p&gt;
+
+&lt;h1 id=&quot;允许自动下载依赖包&quot;&gt;允许自动下载依赖包&lt;/h1&gt;
+
+&lt;p&gt;export ALLOW_DOWNLOADS=true  &lt;/p&gt;
+
+&lt;h1 id=&quot;使用预编译头文件，不加这个编译会更慢一些&quot;&gt;使用预编译头文件，不加这个编译会更慢一些&lt;/h1&gt;
+
+&lt;p&gt;export USE_PRECOMPILED_HEADER=true  &lt;/p&gt;
+
+&lt;h1 id=&quot;要编译的内容&quot;&gt;要编译的内容&lt;/h1&gt;
+
+&lt;p&gt;export BUILD_LANGTOOLS=true&lt;br&gt;
+export BUILD_JAXP=false
+export BUILD_JAXWS=false
+export BUILD_CORBA=false&lt;br&gt;
+export BUILD_HOSTPOT=true&lt;br&gt;
+export BUILD_JDK=true  &lt;/p&gt;
+
+&lt;h1 id=&quot;要编译的版本&quot;&gt;要编译的版本&lt;/h1&gt;
+
+&lt;p&gt;export SKIP_DEBUG_BUILD=false&lt;br&gt;
+export SKIP_FASTDEBUG_BUILD=true&lt;br&gt;
+export DEBUG_NAME=debug  &lt;/p&gt;
+
+&lt;h1 id=&quot;把它设置为false可以避免javaws和浏览器java插件之类的部分build&quot;&gt;把它设置为FALSE可以避免javaws和浏览器Java插件之类的部分build&lt;/h1&gt;
+
+&lt;p&gt;BUILD_DEPLOY=false  &lt;/p&gt;
+
+&lt;h1 id=&quot;把它设置为false就不会build出安装包。因为安装包里有一些奇怪的依赖&quot;&gt;把它设置为false就不会build出安装包。因为安装包里有一些奇怪的依赖&lt;/h1&gt;
+
+&lt;h1 id=&quot;但即便不build出它也已经得到完整的jdk镜像,所以还是不用build它&quot;&gt;但即便不build出它也已经得到完整的JDK镜像,所以还是不用build它&lt;/h1&gt;
+
+&lt;p&gt;BUILD_INSTALL=false  ：&lt;/p&gt;
+
+&lt;h1 id=&quot;存放编译结果&quot;&gt;存放编译结果&lt;/h1&gt;
+
+&lt;p&gt;export ALT_OUTPUTDIR=/home/mango/setup/openjdk/build&lt;/p&gt;
+
+&lt;p&gt;unset CLASSPATH&lt;br&gt;
+unset JAVA_HOME  &lt;/p&gt;
+
+&lt;h1 id=&quot;make-sanity-&amp;amp;&amp;amp;-make&quot;&gt;make sanity &amp;amp;&amp;amp; make&lt;/h1&gt;
+
+&lt;p&gt;make 2&amp;gt;&amp;amp;1 | tee $ALT_OUTPUTDIR/build.log 
+```&lt;/p&gt;
+
+&lt;h3 id=&quot;编译&quot;&gt;编译&lt;/h3&gt;
+
+&lt;p&gt;&lt;code&gt;./build.sh&lt;/code&gt;&lt;/p&gt;
+</description>
+      <pubDate>Mon, 27 Jul 2015 00:00:00 +0000</pubDate>
+      <link>/blog/build-openjdk7.html</link>
+      <guid isPermaLink="true">/blog/build-openjdk7.html</guid>
+    </item>
+    
+    <item>
+      <title>LDA初窥</title>
+      <description>&lt;h2 id=&quot;英文twitter提取主题&quot;&gt;英文Twitter提取主题&lt;/h2&gt;
+
+&lt;h3 id=&quot;数据预处理&quot;&gt;数据预处理&lt;/h3&gt;
+
+&lt;h4 id=&quot;原始语料&quot;&gt;原始语料&lt;/h4&gt;
+
+&lt;p&gt;数据原始为100万条twitter&lt;/p&gt;
+
+&lt;h4 id=&quot;步骤&quot;&gt;步骤&lt;/h4&gt;
+
+&lt;ol&gt;
+&lt;li&gt;拿到要处理的字段:linelist[2]&lt;/li&gt;
+&lt;li&gt;去除掉除英文外的其他语言的twitter&lt;/li&gt;
+&lt;li&gt;去掉标点符号、停用词、http超链接等&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;!-- more --&gt;
+
+&lt;h4 id=&quot;结果&quot;&gt;结果&lt;/h4&gt;
+
+&lt;p&gt;处理完的数据还剩下591707条，所花时间大概5分钟&lt;/p&gt;
+
+&lt;h3 id=&quot;lda提取主题&quot;&gt;LDA提取主题&lt;/h3&gt;
+
+&lt;h4 id=&quot;步骤&quot;&gt;步骤&lt;/h4&gt;
+
+&lt;ol&gt;
+&lt;li&gt;读取文件，设定需要提取的主题数K，构建词典，为每条twitter的每个word随机分配topic&lt;/li&gt;
+&lt;li&gt;进行关键数据结构的初始化:
+&lt;code&gt;
+nw[i][j]: 词汇i指派给主题j的个数
+nd[i][j]: 文档i中指派给主题j的单词个数
+nwsum[k]: 指派给主题k的单词个数
+ndsum[k]: 文档k的单词个数
+&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;用Gibbs方法进行循环采样，采用公式计算出重要参数:
+&lt;code&gt;
+Theta[M][K]:每个文档的主题分布
+Phi[V][K]:每个主题的词汇分布
+Z[M][N]:每个文档中每个词的所属主题
+&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&quot;结果&quot;&gt;结果&lt;/h4&gt;
+
+&lt;ol&gt;
+&lt;li&gt;循环1000次，设定找10个主题以及主题最相关的20个词，所花时间大概20分钟，效果如表1&lt;/li&gt;
+&lt;li&gt;对算法进行改进，加入burn-in与samplelag，加入burn-in是为了得到平稳分布之后再采样，加入samplelag是为了消除相邻两次采样的相关性
+并加大循环次数为10000次，burn-in为2000次，samplelag为10，在服务器上跑了大概3个小时20分钟，所得结果如表2&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h5 id=&quot;表1&quot;&gt;表1&lt;/h5&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;0&lt;/th&gt;
+&lt;th&gt;1&lt;/th&gt;
+&lt;th&gt;2&lt;/th&gt;
+&lt;th&gt;3&lt;/th&gt;
+&lt;th&gt;4&lt;/th&gt;
+&lt;th&gt;5&lt;/th&gt;
+&lt;th&gt;6&lt;/th&gt;
+&lt;th&gt;7&lt;/th&gt;
+&lt;th&gt;8&lt;/th&gt;
+&lt;th&gt;9&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;video&lt;/td&gt;
+&lt;td&gt;news&lt;/td&gt;
+&lt;td&gt;twitter&lt;/td&gt;
+&lt;td&gt;daily&lt;/td&gt;
+&lt;td&gt;free&lt;/td&gt;
+&lt;td&gt;day&lt;/td&gt;
+&lt;td&gt;jobs&lt;/td&gt;
+&lt;td&gt;de&lt;/td&gt;
+&lt;td&gt;blog&lt;/td&gt;
+&lt;td&gt;live&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;check&lt;/td&gt;
+&lt;td&gt;game&lt;/td&gt;
+&lt;td&gt;facebook&lt;/td&gt;
+&lt;td&gt;twittascope&lt;/td&gt;
+&lt;td&gt;iphone&lt;/td&gt;
+&lt;td&gt;spymaster&lt;/td&gt;
+&lt;td&gt;news&lt;/td&gt;
+&lt;td&gt;la&lt;/td&gt;
+&lt;td&gt;post&lt;/td&gt;
+&lt;td&gt;hey&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;music&lt;/td&gt;
+&lt;td&gt;obama&lt;/td&gt;
+&lt;td&gt;check&lt;/td&gt;
+&lt;td&gt;photo&lt;/td&gt;
+&lt;td&gt;online&lt;/td&gt;
+&lt;td&gt;sale&lt;/td&gt;
+&lt;td&gt;job&lt;/td&gt;
+&lt;td&gt;en&lt;/td&gt;
+&lt;td&gt;read&lt;/td&gt;
+&lt;td&gt;love&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;td&gt;playing&lt;/td&gt;
+&lt;td&gt;air&lt;/td&gt;
+&lt;td&gt;site&lt;/td&gt;
+&lt;td&gt;flu&lt;/td&gt;
+&lt;td&gt;money&lt;/td&gt;
+&lt;td&gt;followers&lt;/td&gt;
+&lt;td&gt;city&lt;/td&gt;
+&lt;td&gt;el&lt;/td&gt;
+&lt;td&gt;life&lt;/td&gt;
+&lt;td&gt;lol&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;td&gt;listen&lt;/td&gt;
+&lt;td&gt;red&lt;/td&gt;
+&lt;td&gt;google&lt;/td&gt;
+&lt;td&gt;win&lt;/td&gt;
+&lt;td&gt;marketing&lt;/td&gt;
+&lt;td&gt;house&lt;/td&gt;
+&lt;td&gt;san&lt;/td&gt;
+&lt;td&gt;van&lt;/td&gt;
+&lt;td&gt;directory&lt;/td&gt;
+&lt;td&gt;dont&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;6&lt;/td&gt;
+&lt;td&gt;movie&lt;/td&gt;
+&lt;td&gt;lakers&lt;/td&gt;
+&lt;td&gt;follow&lt;/td&gt;
+&lt;td&gt;vote&lt;/td&gt;
+&lt;td&gt;business&lt;/td&gt;
+&lt;td&gt;level&lt;/td&gt;
+&lt;td&gt;health&lt;/td&gt;
+&lt;td&gt;los&lt;/td&gt;
+&lt;td&gt;reading&lt;/td&gt;
+&lt;td&gt;pic&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;7&lt;/td&gt;
+&lt;td&gt;listening&lt;/td&gt;
+&lt;td&gt;car&lt;/td&gt;
+&lt;td&gt;join&lt;/td&gt;
+&lt;td&gt;swine&lt;/td&gt;
+&lt;td&gt;social&lt;/td&gt;
+&lt;td&gt;check&lt;/td&gt;
+&lt;td&gt;sales&lt;/td&gt;
+&lt;td&gt;tv&lt;/td&gt;
+&lt;td&gt;book&lt;/td&gt;
+&lt;td&gt;gt&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;8&lt;/td&gt;
+&lt;td&gt;watching&lt;/td&gt;
+&lt;td&gt;win&lt;/td&gt;
+&lt;td&gt;link&lt;/td&gt;
+&lt;td&gt;food&lt;/td&gt;
+&lt;td&gt;media&lt;/td&gt;
+&lt;td&gt;free&lt;/td&gt;
+&lt;td&gt;manager&lt;/td&gt;
+&lt;td&gt;para&lt;/td&gt;
+&lt;td&gt;tips&lt;/td&gt;
+&lt;td&gt;haha&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;9&lt;/td&gt;
+&lt;td&gt;youtubu&lt;/td&gt;
+&lt;td&gt;cup&lt;/td&gt;
+&lt;td&gt;free&lt;/td&gt;
+&lt;td&gt;time&lt;/td&gt;
+&lt;td&gt;internet&lt;/td&gt;
+&lt;td&gt;reached&lt;/td&gt;
+&lt;td&gt;united&lt;/td&gt;
+&lt;td&gt;da&lt;/td&gt;
+&lt;td&gt;people&lt;/td&gt;
+&lt;td&gt;cute&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;10&lt;/td&gt;
+&lt;td&gt;watch&lt;/td&gt;
+&lt;td&gt;women&lt;/td&gt;
+&lt;td&gt;search&lt;/td&gt;
+&lt;td&gt;die&lt;/td&gt;
+&lt;td&gt;web&lt;/td&gt;
+&lt;td&gt;attempt&lt;/td&gt;
+&lt;td&gt;real&lt;/td&gt;
+&lt;td&gt;op&lt;/td&gt;
+&lt;td&gt;health&lt;/td&gt;
+&lt;td&gt;guys&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;h5 id=&quot;表2&quot;&gt;表2&lt;/h5&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;0&lt;/th&gt;
+&lt;th&gt;1&lt;/th&gt;
+&lt;th&gt;2&lt;/th&gt;
+&lt;th&gt;3&lt;/th&gt;
+&lt;th&gt;4&lt;/th&gt;
+&lt;th&gt;5&lt;/th&gt;
+&lt;th&gt;6&lt;/th&gt;
+&lt;th&gt;7&lt;/th&gt;
+&lt;th&gt;8&lt;/th&gt;
+&lt;th&gt;9&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;blog&lt;/td&gt;
+&lt;td&gt;june&lt;/td&gt;
+&lt;td&gt;daily&lt;/td&gt;
+&lt;td&gt;love&lt;/td&gt;
+&lt;td&gt;de&lt;/td&gt;
+&lt;td&gt;game&lt;/td&gt;
+&lt;td&gt;twitter&lt;/td&gt;
+&lt;td&gt;playing&lt;/td&gt;
+&lt;td&gt;jobs&lt;/td&gt;
+&lt;td&gt;live&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;post&lt;/td&gt;
+&lt;td&gt;flu&lt;/td&gt;
+&lt;td&gt;twitteascope&lt;/td&gt;
+&lt;td&gt;day&lt;/td&gt;
+&lt;td&gt;la&lt;/td&gt;
+&lt;td&gt;win&lt;/td&gt;
+&lt;td&gt;free&lt;/td&gt;
+&lt;td&gt;music&lt;/td&gt;
+&lt;td&gt;job&lt;/td&gt;
+&lt;td&gt;hey&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;facebook&lt;/td&gt;
+&lt;td&gt;car&lt;/td&gt;
+&lt;td&gt;check&lt;/td&gt;
+&lt;td&gt;lol&lt;/td&gt;
+&lt;td&gt;en&lt;/td&gt;
+&lt;td&gt;spymaster&lt;/td&gt;
+&lt;td&gt;online&lt;/td&gt;
+&lt;td&gt;love&lt;/td&gt;
+&lt;td&gt;news&lt;/td&gt;
+&lt;td&gt;iphone&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;td&gt;news&lt;/td&gt;
+&lt;td&gt;news&lt;/td&gt;
+&lt;td&gt;video&lt;/td&gt;
+&lt;td&gt;dont&lt;/td&gt;
+&lt;td&gt;el&lt;/td&gt;
+&lt;td&gt;red&lt;/td&gt;
+&lt;td&gt;followers&lt;/td&gt;
+&lt;td&gt;song&lt;/td&gt;
+&lt;td&gt;san&lt;/td&gt;
+&lt;td&gt;free&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;td&gt;obama&lt;/td&gt;
+&lt;td&gt;swine&lt;/td&gt;
+&lt;td&gt;photo&lt;/td&gt;
+&lt;td&gt;time&lt;/td&gt;
+&lt;td&gt;van&lt;/td&gt;
+&lt;td&gt;friday&lt;/td&gt;
+&lt;td&gt;money&lt;/td&gt;
+&lt;td&gt;tonight&lt;/td&gt;
+&lt;td&gt;sales&lt;/td&gt;
+&lt;td&gt;souljaboytellem&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;6&lt;/td&gt;
+&lt;td&gt;health&lt;/td&gt;
+&lt;td&gt;air&lt;/td&gt;
+&lt;td&gt;twitter&lt;/td&gt;
+&lt;td&gt;pic&lt;/td&gt;
+&lt;td&gt;los&lt;/td&gt;
+&lt;td&gt;lakers&lt;/td&gt;
+&lt;td&gt;markering&lt;/td&gt;
+&lt;td&gt;listen&lt;/td&gt;
+&lt;td&gt;manager&lt;/td&gt;
+&lt;td&gt;offer&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;7&lt;/td&gt;
+&lt;td&gt;url&lt;/td&gt;
+&lt;td&gt;city&lt;/td&gt;
+&lt;td&gt;posted&lt;/td&gt;
+&lt;td&gt;cute&lt;/td&gt;
+&lt;td&gt;da&lt;/td&gt;
+&lt;td&gt;cup&lt;/td&gt;
+&lt;td&gt;web&lt;/td&gt;
+&lt;td&gt;girl&lt;/td&gt;
+&lt;td&gt;real&lt;/td&gt;
+&lt;td&gt;gt&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;8&lt;/td&gt;
+&lt;td&gt;care&lt;/td&gt;
+&lt;td&gt;day&lt;/td&gt;
+&lt;td&gt;youtubu&lt;/td&gt;
+&lt;td&gt;nice&lt;/td&gt;
+&lt;td&gt;die&lt;/td&gt;
+&lt;td&gt;attempt&lt;/td&gt;
+&lt;td&gt;site&lt;/td&gt;
+&lt;td&gt;hot&lt;/td&gt;
+&lt;td&gt;business&lt;/td&gt;
+&lt;td&gt;windows&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;9&lt;/td&gt;
+&lt;td&gt;bill&lt;/td&gt;
+&lt;td&gt;sale&lt;/td&gt;
+&lt;td&gt;watch&lt;/td&gt;
+&lt;td&gt;haha&lt;/td&gt;
+&lt;td&gt;para&lt;/td&gt;
+&lt;td&gt;assassination&lt;/td&gt;
+&lt;td&gt;social&lt;/td&gt;
+&lt;td&gt;video&lt;/td&gt;
+&lt;td&gt;market&lt;/td&gt;
+&lt;td&gt;apple&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;10&lt;/td&gt;
+&lt;td&gt;read&lt;/td&gt;
+&lt;td&gt;house&lt;/td&gt;
+&lt;td&gt;level&lt;/td&gt;
+&lt;td&gt;happy&lt;/td&gt;
+&lt;td&gt;op&lt;/td&gt;
+&lt;td&gt;new&lt;/td&gt;
+&lt;td&gt;business&lt;/td&gt;
+&lt;td&gt;listening&lt;/td&gt;
+&lt;td&gt;united&lt;/td&gt;
+&lt;td&gt;petition&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;h2 id=&quot;中文新闻提取主题&quot;&gt;中文新闻提取主题&lt;/h2&gt;
+
+&lt;h3 id=&quot;数据预处理&quot;&gt;数据预处理&lt;/h3&gt;
+
+&lt;h4 id=&quot;原始语料&quot;&gt;原始语料&lt;/h4&gt;
+
+&lt;p&gt;来源于SOHU新闻网站保存的大量经过编辑手工整理与分类的新闻语料与对应的分类信息，采用了旅游、教育、军事共30个文本进行分析&lt;/p&gt;
+
+&lt;h4 id=&quot;步骤&quot;&gt;步骤&lt;/h4&gt;
+
+&lt;p&gt;PYTHON最强大的除了它的第三方库之外，应该就属对字符串的处理了，以前我对此深信不疑，结果发现，在对中文的处理上，PYTHON2还是有很大的欠缺
+1. 中文不同于英文，首先要设定PYTHON的默认编解码方式为UTF-8，读取文件后，首先第一步是要进行分词，我采用的是PYTHON的开源第三方库JIEBA
+2. 去掉英文符号与数字
+3. 去掉中文符号，要先把中文符号解码为UTF-8，然后进行比较
+4. 去掉中文停用词，首先需要将每个词编码为UTF-8，然后进行比较
+5. 最后要写入的字符编码为UTF-8，再写入文件&lt;/p&gt;
+
+&lt;p&gt;BTW：因为PYTHON2默认的编码方式是ASCII，会对中文的处理造成很多不方便，处理之前都要转换成UNICODE，好在PYTHON3已经意识到了这个问题，所以PYTHON3的默认编码方式是UNICODE&lt;/p&gt;
+
+&lt;h4 id=&quot;结果&quot;&gt;结果&lt;/h4&gt;
+
+&lt;p&gt;因为总共只有30个100-200个词的新闻文本，处理非常快，只需要短短的3-5秒&lt;/p&gt;
+
+&lt;h2 id=&quot;lda提取主题&quot;&gt;LDA提取主题&lt;/h2&gt;
+
+&lt;h4 id=&quot;步骤&quot;&gt;步骤&lt;/h4&gt;
+
+&lt;p&gt;因为LDA采用的是词袋模型，故算法与具体的语言无关，步骤和英文的一样&lt;/p&gt;
+
+&lt;h4 id=&quot;结果&quot;&gt;结果&lt;/h4&gt;
+
+&lt;ol&gt;
+&lt;li&gt;循环1000次，设定找3个主题已经主题最相关的20个词，所花时间大概6秒，效果可以&lt;/li&gt;
+&lt;li&gt;同英文一样的改进，加入BURN-IN、SAMPLELAG，循环10000次，所花时间大概40秒，效果和之前的差不多&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;分析原因&quot;&gt;分析原因&lt;/h3&gt;
+
+&lt;p&gt;效果虽然都还不错，但是两次结果差不多，主要是语料太少，区分度不明显&lt;/p&gt;
+
+&lt;h2 id=&quot;下一步计划&quot;&gt;下一步计划&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;自己写爬虫爬新浪微博&lt;/li&gt;
+&lt;li&gt;针对LDA不适合处理短文本的特性来改进算法，初步设想加入作者的主题分布和对转发微博的处理
+2.1. &lt;strong&gt;如果一条微博是原创微博，其主题由作者的主题分布中抽取&lt;/strong&gt;
+2.2. &lt;strong&gt;如果是转发微博，则由转发部分的主题确定&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+      <pubDate>Sat, 20 Jun 2015 00:00:00 +0000</pubDate>
+      <link>/blog/ldabout.html</link>
+      <guid isPermaLink="true">/blog/ldabout.html</guid>
+    </item>
+    
+    <item>
+      <title>决策树</title>
+      <description>&lt;h2 id=&quot;简介&quot;&gt;简介&lt;/h2&gt;
+
+&lt;p&gt;分类决策树模型是一种描述对实例进行分类的树形结构，决策树由结点和有向边组成，借点有两种类型：内部结点和叶结点。&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;h2 id=&quot;特征选择&quot;&gt;特征选择&lt;/h2&gt;
+
+&lt;p&gt;选取对训练数据具有分类能力的特征，提高决策树的学习效率。通常采用&lt;code&gt;信息增益(ID3)&lt;/code&gt;或&lt;code&gt;信息增益比(C4.5)&lt;/code&gt;为特征选择的准则。&lt;/p&gt;
+
+&lt;h3 id=&quot;熵(entropy)&quot;&gt;熵(entropy)&lt;/h3&gt;
+
+&lt;p&gt;熵为随机变量不确定的度量，定义为信息的期望值，名字来源于信息论之父香农。&lt;/p&gt;
+
+&lt;p&gt;设随机变量X是一个取有限个值的离散随机变量，其概率分布为: $$ P(X=x_i) = p_i, i = 1,2,...,n $$&lt;/p&gt;
+
+&lt;p&gt;则随机变量X的熵为: $$ H(X) = -\sum_{i=1}^n p_i log(p_i) $$&lt;/p&gt;
+
+&lt;p&gt;若对数以2为底，则熵的单位为比特(bit)，从信息论中熵的一种解释是熵确定了要编码的集合中任意成员的分类所需要的最少二进制位数。
+熵越大，则随机变量的不确定性越大。&lt;/p&gt;
+
+&lt;h3 id=&quot;条件熵&quot;&gt;条件熵&lt;/h3&gt;
+
+&lt;p&gt;设有随机变量(X,Y)，其联合概率分布为:
+$$ H(X=x_i, Y=y_j) = p_{ij}, i=1,2,...,n,j=1,2,...,m $$&lt;/p&gt;
+
+&lt;p&gt;条件熵H(Y|X)表示在已知随机变量X的条件下随机变量Y的不确定性。定义为X给定条件下Y的条件概率分布的熵对X的数学期望：
+$$ H(Y|X) = \sum_{i=1}^n p_iH(Y|X=x_i), 其中p_i=P(X=x_i) $$&lt;/p&gt;
+
+&lt;h3 id=&quot;信息增益&quot;&gt;&lt;strong&gt;信息增益&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;信息增益为得知特征X的信息而使得类Y的信息不确定性减少的程度，定义为特征A对训练集D的信息增益为g(D,A)，定义为集合D的经验熵H(D)与特征A给定条件下D的经验条件熵H(D|A)之差，即：
+$$ g(D,A) = H(D) - H(D|A) $$&lt;/p&gt;
+
+&lt;p&gt;一般地，熵H(Y)与条件熵H(Y|X)之差称为互信息。决策树学习中的信息增益等价于训练数据集中类与特征的互信息。
+信息增益依赖于特征，不同的特征往往具有不同的信息增益，信息增益大的特征往往具有更强的分类能力。&lt;/p&gt;
+
+&lt;h4 id=&quot;求信息增益的例子&quot;&gt;求信息增益的例子&lt;/h4&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align: center&quot;&gt;Day&lt;/th&gt;
+&lt;th style=&quot;text-align: center&quot;&gt;Outlook&lt;/th&gt;
+&lt;th style=&quot;text-align: center&quot;&gt;Temperature&lt;/th&gt;
+&lt;th style=&quot;text-align: center&quot;&gt;Humidity&lt;/th&gt;
+&lt;th style=&quot;text-align: center&quot;&gt;Wind&lt;/th&gt;
+&lt;th style=&quot;text-align: center&quot;&gt;PlayTennis&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D1&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Sunny&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Hot&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;High&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Weak&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;No&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D2&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Sunny&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Hot&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;High&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Strong&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;No&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D3&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Overcast&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Hot&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;High&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Weak&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D4&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Rain&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Mild&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;High&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Weak&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D5&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Rain&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Cool&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Normal&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Weak&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D6&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Rain&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Cool&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Normal&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Strong&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;No&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D7&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Overcast&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Cool&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Normal&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Strong&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D8&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Sunny&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Mild&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;High&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Weak&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;No&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D9&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Sunny&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Cool&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Normal&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Weak&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D10&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Rain&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Mild&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Normal&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Weak&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D11&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Sunny&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Mild&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Normal&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Strong&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D12&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Overcast&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Mild&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;High&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Strong&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D13&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Overcast&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Hot&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Normal&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Weak&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;D14&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Rain&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Mild&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;High&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Strong&lt;/td&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;No&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;p&gt;训练集D相对于PlayTennis的熵为：&lt;/p&gt;
+
+&lt;p&gt;可以看到，Gain(D,Outlook)信息增益最大，故选择Outlook作为根结点，并为它的每一个可能的值在根节点下创建分支。接着递归地算子节点的信息增益，选择信息增益值最大的作为结点，直到将所有的类分开为止。&lt;/p&gt;
+
+&lt;p&gt;信息增益比较偏袒具有较多值的属性，因为太多的可能值必然会把训练集分割成非常小的空间，因此，相比训练集，它会有非常高的信息增益，尽管实际情况并非这样。&lt;/p&gt;
+
+&lt;p&gt;避免这个不足的方法是用信息增益比作为特征选择的度量准则。&lt;/p&gt;
+
+&lt;h3 id=&quot;信息增益比&quot;&gt;&lt;strong&gt;信息增益比&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;信息增益比通过假如一个被称作&lt;code&gt;分裂信息&lt;/code&gt;的项来惩罚类似Date的属性，分裂信息用来衡量属性分裂数据的广度和均匀性：&lt;/p&gt;
+
+&lt;h2 id=&quot;id3算法&quot;&gt;ID3算法&lt;/h2&gt;
+
+&lt;p&gt;核心：在决策树各个结点上应用&lt;code&gt;信息增益&lt;/code&gt;准则选择特征。
+具体方法是：从根节点出发，对结点计算所有可能的特征的信息增益，选择信息增益最大的特征作为结点的特征，由该特征的不同取值建立子结点，再对子结点递归地调用以上方法，构建决策树，直到所有特征的信息增益均很小或没有特征可以选择为止，最后得到一个决策树。
+ID3算法存在的&lt;code&gt;缺点&lt;/code&gt;：
+1. ID3算法在选择根节点和内部节点中的分支属性时，采用信息增益作为评价标准。信息增益的缺点是倾向于选择取值较多的属性，但在有些情况下这类属性可能不会提供太多有价值的信息。
+2. ID3算法只能对描述属性为离散型属性的数据集构造决策树。&lt;/p&gt;
+
+&lt;h2 id=&quot;c4.5算法&quot;&gt;C4.5算法&lt;/h2&gt;
+
+&lt;p&gt;C4.5算法之所以是最常用的决策树算法，是因为它继承了ID3算法的所有优点并对ID3算法进行了改进和补充。C4.5算法采用信息增益率作为选择分支属性的标准，并克服了ID3算法中信息增益选择属性时偏向选择取值多的属性的不足，并能够完成对连续属性离散化的处理；还能够对不完整数据进行处理。C4.5算法属于基于信息论Information Theory的方法，以信息论为基础，以信息熵和信息增益度为衡量标准，从而实现对数据的归纳和分类。
+C4.5算法主要做出了以下方面的改进:
+1. 可以处理连续数值型属性
+2. 用&lt;code&gt;信息增益比&lt;/code&gt;来选择属性
+3. 后剪枝策略
+4. 缺失值处理&lt;/p&gt;
+
+&lt;p&gt;C4.5的&lt;code&gt;缺点&lt;/code&gt;：
+1. 算法低效，在构造树的过程中，需要对数据集进行多次的顺序扫描和排序，因而导致算法的低效
+2. 内存受限，适合于能够驻留于内存的数据集，当训练集大得无法在内存容纳时程序无法运行。&lt;/p&gt;
+
+&lt;h2 id=&quot;参考资料：&quot;&gt;参考资料：&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;https://book.douban.com/subject/10590856/&quot;&gt;《统计学习方法》&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://book.douban.com/subject/1102235/&quot;&gt;《机器学习》&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+      <pubDate>Wed, 10 Jun 2015 00:00:00 +0000</pubDate>
+      <link>/blog/decision-tree.html</link>
+      <guid isPermaLink="true">/blog/decision-tree.html</guid>
+    </item>
+    
+    <item>
+      <title>k近邻法</title>
+      <description>&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;k近邻法(k-nearest neighbor, k-NN)是一种基本的分类与回归的非参数统计方法。
+&lt;code&gt;
+k-NN分类：一个对象的分类是由其邻居的“多数表决”确定的，k 个最近邻居中最常见的分类决定了赋予该对象的类别。若 k = 1，则该对象的类别直接由最近的一个节点赋予。
+k-NN回归：输出是其 k 个最近邻居的值的平均值。
+&lt;/code&gt;
+k-NN是一种&lt;code&gt;基于实例&lt;/code&gt;的学习，或者是局部近似和将所有计算推迟到分类之后的惰性学习。k-近邻算法是所有的机器学习算法中最简单的之一。
+本文主要介绍k-NN的分类问题。&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;h2 id=&quot;k-nn简介&quot;&gt;k-NN简介&lt;/h2&gt;
+
+&lt;p&gt;给定一个训练数据集，对新的输入实例，在训练数据集中找到与该实例最临近的k个实例，这k个实例的多数属于某个类，就把该输入实例分为这类。&lt;/p&gt;
+
+&lt;h2 id=&quot;k-nn模型三要素&quot;&gt;k-NN模型三要素&lt;/h2&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;距离度量: 一般采用欧氏距离。不同的距离度量所确定的最近邻点不同。
+k值选择：k一般取比较小的数值。但k值过小，模型越复杂，容易过拟合。
+分类决策规则：往往采用多数表决。
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2 id=&quot;k-nn实现：kd树&quot;&gt;k-NN实现：kd树&lt;/h2&gt;
+
+&lt;p&gt;实现k-NN主要考虑的问题是如果对训练数据进行快速k近邻搜索。最简单的实现方法是线性扫描，但当训练集很大时，效率很低。为了提高k近邻搜索的效率，可以考虑使用特殊的结构存储训练数据，已减少计算距离的次数，下面要介绍的就是kd树方法。&lt;/p&gt;
+
+&lt;h3 id=&quot;构造kd树&quot;&gt;构造kd树&lt;/h3&gt;
+
+&lt;p&gt;kd树是一种对k维空间中的实例点进行存储以便对其进行快速检索的二叉树结构。构造kd数相当于不断地用垂直于坐标轴的超平面将k维空间划分，构成一系列的k维超矩形区域。
+方法如下：
+1. 构造根节点，对应于包含所有实例点的k维空间的超矩形区域。
+2. 选择以$x^{(1)}$为坐标轴，以所有实例的$x^{(1)}$坐标的中位数作为切分点，用通过切分点并与坐标轴垂直的超平面将超矩形区域划分为两个子区域，左子结点对应与坐标$x^{(1)}$小于切分点的子区域，右子节点对应与坐标$x^{(1)}$大于切分点的子区域。
+3. 重复：对深度为j的节点，选择$x^{(l)}$为切分的坐标轴，$l=(j mode k) + 1$。将落在切分超平面上的实例点保存在该节点。
+4. 直到两个子区域没有实例存在时停止。从而形成kd树的区域划分。&lt;/p&gt;
+
+&lt;h3 id=&quot;搜索kd树&quot;&gt;搜索kd树&lt;/h3&gt;
+
+&lt;p&gt;给定一个目标点，搜索其最近邻点，首先先找到包含目标点的叶结点，然后从该结点出发，依次回退到父结点；不断查找与目标点最邻近的结点，当确定不可能存在更近的结点时终止。这样搜索就被限制在空间的局部区域上，效率大为提高。
+1. 在kd树上找到包含目标点的叶结点，并以此叶结点作为“当前最近点”。
+2. 递归地向上回退，在每个结点进行以下操作：
+2.1 如果该节点保存的实例点比当前最近点距离目标点更近，则已该实例点为“当前最近点”。
+2.2 当前最近点一定存在于该结点一个子节点对应的区域。检查该子结点的父结点的另一子节点对应的区域是否有更近的点。具体地，检查另一子结点对应的区域是否与以目标点为中心，以目标点与“当前实例点”间的距离为半径的超球体相交。如果相交，则可能在另一个子结点对应的区域内存在距目标点更近的点，移动到另一子结点，接着递归地进行最近邻搜索，如果不相交，向上回退。
+3. 当回退到根结点时，搜索结束，最后的“当前最近点”即为最近邻点。&lt;/p&gt;
+
+&lt;h3 id=&quot;总结&quot;&gt;总结&lt;/h3&gt;
+
+&lt;p&gt;如果实例点随机分布，则kd树的搜索平均计算复杂度为O(logN)，N为训练实例。kd树更适合于训练实例数远大于空间维度数时的k-NN。而空间维度数接近训练实例时，几乎接近线性扫描。&lt;/p&gt;
+
+&lt;h2 id=&quot;参考资料&quot;&gt;参考资料&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;https://book.douban.com/subject/10590856/&quot;&gt;《统计学习方法》&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://zh.wikipedia.org/wiki/%E6%9C%80%E8%BF%91%E9%84%B0%E5%B1%85%E6%B3%95&quot;&gt;维基百科&lt;/a&gt;
+由转发部分的主题确定_&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+      <pubDate>Fri, 05 Jun 2015 00:00:00 +0000</pubDate>
+      <link>/blog/knn.html</link>
+      <guid isPermaLink="true">/blog/knn.html</guid>
+    </item>
+    
+    <item>
+      <title>统计学习方法概述</title>
+      <description>&lt;h2 id=&quot;统计学习三要素&quot;&gt;统计学习三要素&lt;/h2&gt;
+
+&lt;h3 id=&quot;模型(model)&quot;&gt;模型(model)&lt;/h3&gt;
+
+&lt;p&gt;模型即为所要学习的条件概率分布或决策函数。
+&lt;code&gt;
+由决策函数表示的模型为非概率模型。
+由条件概率表示的模型为概率模型。
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;策略(strategy)&quot;&gt;策略(strategy)&lt;/h3&gt;
+
+&lt;p&gt;按照什么样的准则学习或选择最优模型。
+&lt;code&gt;
+经验风险最小化(ERM)会产生过拟合问题
+结构风险最小化(SRM)等价于正则化
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;算法(algorithm)&quot;&gt;算法(algorithm)&lt;/h3&gt;
+
+&lt;p&gt;学习模型的具体计算方法。&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;h2 id=&quot;模型选择的方法&quot;&gt;模型选择的方法&lt;/h2&gt;
+
+&lt;h3 id=&quot;正则化(regularization)&quot;&gt;正则化(regularization)&lt;/h3&gt;
+
+&lt;p&gt;正则化即为在经验风险上加一个正则化项，正则化项一般是模型复杂度的单调递增函数，模型越复杂，正则化项就越大。它一般是参数向量的L2范数，作用是选择经验风险与模型复杂度同时较小的模型。&lt;/p&gt;
+
+&lt;h3 id=&quot;交叉验证(cross-validation)&quot;&gt;交叉验证(cross-validation)&lt;/h3&gt;
+
+&lt;p&gt;将数据集随机分为三部分：
+&lt;code&gt;
+训练集(training set): 训练模型，占比60%
+交叉验证集(cross validation set): 模型的选择，占比20%
+测试集(test set): 最终对学习方法的评估，占比20%
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;泛化能力&quot;&gt;泛化能力&lt;/h2&gt;
+
+&lt;p&gt;该方法学习到的模型对未知数据的预测能力。&lt;/p&gt;
+
+&lt;h2 id=&quot;二类分类问题的常用评价指标f1值&quot;&gt;二类分类问题的常用评价指标F1值&lt;/h2&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;TP(True Positive): 将正类预测为正类数
+FN(False Negative): 将正类预测为负类数
+FP(False Positive): 将负类预测为正类数
+TN(True Negative): 将负类预测为负类数
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;精确率(precision): $$P = \frac{TP}{TP + FP}$$&lt;/p&gt;
+
+&lt;p&gt;召回率(recall): $$R = \frac{TP}{TP + FN}$$&lt;/p&gt;
+
+&lt;p&gt;F1值为P和R的调和均值: $$\frac{2}{F1}=\frac{1}{P} + \frac{1}{R}$$&lt;/p&gt;
+
+&lt;p&gt;$$F1 = \frac{2TP}{2TP + FP + FN} = \frac{2PR}{P + R}$$&lt;/p&gt;
+
+&lt;h2 id=&quot;参考资料&quot;&gt;参考资料&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://book.douban.com/subject/10590856/&quot;&gt;《统计学习方法》&lt;/a&gt;&lt;/p&gt;
+</description>
+      <pubDate>Mon, 25 May 2015 00:00:00 +0000</pubDate>
+      <link>/blog/statistical-learning-overview.html</link>
+      <guid isPermaLink="true">/blog/statistical-learning-overview.html</guid>
+    </item>
+    
+    <item>
+      <title>Mac下配置iTerm2实现快速远程登录</title>
+      <description>&lt;p&gt;Mac上的神器太多，今天主要讲下如何配置iTerm2终端实现快速远程登录。&lt;/p&gt;
+
+&lt;h3 id=&quot;编写脚本&quot;&gt;&lt;strong&gt;编写脚本&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;需要用到&lt;a href=&quot;http://linux.die.net/man/1/expect&quot;&gt;expect语法&lt;/a&gt;，代码如下：
+```python&lt;/p&gt;
+
+&lt;h1 id=&quot;!/usr/bin/expect--f&quot;&gt;!/usr/bin/expect -f&lt;/h1&gt;
+
+&lt;p&gt;set username YourUserName    // 设置用户名
+set host &lt;strong&gt;&lt;em&gt;.&lt;/em&gt;&lt;/strong&gt;.&lt;strong&gt;&lt;em&gt;.&lt;/em&gt;&lt;/strong&gt;     // 设置主机IP
+set password YourPassword    // 设置密码
+set time -1                  // 设置永不超时&lt;/p&gt;
+
+&lt;p&gt;spawn ssh $username@$host    // 启动一个新进程
+expect &amp;quot;&lt;em&gt;assword:&lt;/em&gt;&amp;quot;          // 进程返回带有assword:字符时
+send &amp;quot;$password\r&amp;quot;           // 向进程输入前面设置的密码
+interact                     // 允许用户交互
+expect eof                   // 结束
+``&lt;code&gt;
+保存到一个自己知道的目录，后面配置快捷键需要用到，我存放的目录是&lt;/code&gt;~/program/myscripts/235.sh`。
+&amp;lt;!-- more --&amp;gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;配置iterm2&quot;&gt;&lt;strong&gt;配置iTerm2&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;在iTerm2下按&lt;code&gt;command&lt;/code&gt; + &lt;code&gt;o&lt;/code&gt;（字母o，不是数字0），出现如下图：
+&lt;img src=&quot;http://ww4.sinaimg.cn/large/6120fe13jw1erjdj6y6z7j214u0l8n06.jpg&quot; alt=&quot;&quot;&gt;
+点击框住的按钮&lt;code&gt;Edit Profiles...&lt;/code&gt;，会出现下面的图，点击左下角的加号新建一个Profile，设置快捷键执行刚写好的脚本：
+&lt;img src=&quot;http://ww2.sinaimg.cn/large/6120fe13jw1erjdoa21p4j21fc0u0wnj.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;测试&quot;&gt;&lt;strong&gt;测试&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;我设置的是&lt;code&gt;ctrl&lt;/code&gt; + &lt;code&gt;command&lt;/code&gt; + &lt;code&gt;T&lt;/code&gt;，按了组合键之后出现如下图：
+&lt;img src=&quot;http://ww4.sinaimg.cn/large/6120fe13jw1erjdx08q74j20vu0lyai4.jpg&quot; alt=&quot;&quot;&gt;
+ssh成功登录，直接按快捷键就能快速登录~ &lt;/p&gt;
+
+&lt;h3 id=&quot;配置文件下载&quot;&gt;&lt;strong&gt;配置文件下载&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/jlovedragon/profile/blob/master/mac/sshlogin.sh&quot;&gt;github链接&lt;/a&gt;&lt;/p&gt;
+</description>
+      <pubDate>Fri, 24 Apr 2015 00:00:00 +0000</pubDate>
+      <link>/blog/mac-iterm-configuration.html</link>
+      <guid isPermaLink="true">/blog/mac-iterm-configuration.html</guid>
+    </item>
+    
+    <item>
+      <title>R语言绘图初阶</title>
+      <description>&lt;p&gt;前几天关注了一下互联网行业大公司实习岗位的招聘要求，对数据挖掘和算法方向的都有&lt;strong&gt;熟悉R语言的优先&lt;/strong&gt;这一项，想起去年自己自学了一段时间的R，但是是走马观花，重点放在了python的学习上，没有扎实去理解和学习，所以最近利用下班时间准备捡起来，而R在绘图方面比Python高了不是一个档次，故在了解了基础语法和概念之后，我便把重点放在绘图上了，下面就具体的记记绘图的各种函数和图形的参数，留待复习与查阅。参考书籍为《R语言实战》。&lt;/p&gt;
+
+&lt;!-- more --&gt;
+
+&lt;h2 id=&quot;plot()函数&quot;&gt;plot()函数&lt;/h2&gt;
+
+&lt;p&gt;plot()是R中为对象作图的一个泛型函数，它的输出将根据所绘制对象的类型的不同而变化。先用&lt;code&gt;help(plot)&lt;/code&gt;看下介绍。
+用法为&lt;code&gt;plot(x, y, ...)&lt;/code&gt;，其中重点说下type参数。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&amp;quot;p&amp;quot; for &lt;strong&gt;p&lt;/strong&gt;oints,&lt;/li&gt;
+&lt;li&gt;&amp;quot;l&amp;quot; for &lt;strong&gt;l&lt;/strong&gt;ines,&lt;/li&gt;
+&lt;li&gt;&amp;quot;b&amp;quot; for &lt;strong&gt;b&lt;/strong&gt;oth,&lt;/li&gt;
+&lt;li&gt;&amp;quot;c&amp;quot; for the lines part alone of &amp;quot;b&amp;quot;,&lt;/li&gt;
+&lt;li&gt;&amp;quot;o&amp;quot; for both &amp;#39;overplotted&amp;#39;,&lt;/li&gt;
+&lt;li&gt;&amp;quot;h&amp;quot; for &amp;#39;histogram&amp;#39; like(or /Users/quantin/Documents/MakedownBlog/R-graph.md&amp;#39;high-density&amp;#39;) vertical lines,&lt;/li&gt;
+&lt;li&gt;&amp;quot;s&amp;quot; for stair steps,&lt;/li&gt;
+&lt;li&gt;&amp;quot;S&amp;quot; for other steps,&lt;/li&gt;
+&lt;li&gt;&amp;quot;n&amp;quot; for no plotting.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;图形参数&quot;&gt;图形参数&lt;/h2&gt;
+
+&lt;p&gt;我们可以通过修改称为图形参数的选项来自定义一副图形的多个特性（字体，颜色，坐标轴，标题）。修改图形参数的一种方法是通过函数par()来指定这些选项。以这种方式设定的参数值除非被再次修改，否则将会在会话结束前一直有效。&lt;/p&gt;
+
+&lt;h4 id=&quot;符号和线条&quot;&gt;符号和线条&lt;/h4&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;参数&lt;/th&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;描述&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;pch&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;指定绘制点是使用的符号(如下图)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;cex&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;指定符号的大小。cex是一个数值，表示绘图符号相对于默认大小的缩放倍数。默认大小为1，1.5表示放大为默认值的1.5倍&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;lty&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;指定线条类型（如下图）&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;lwd&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;指定线条宽度。lwd是以默认值的相对大小来表示的（默认值为1）。eg.lwd=2将生成一条两倍与默认宽度的线条&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://ww4.sinaimg.cn/large/005ZsWKgjw1eprrovcyb4j306c072aa7.jpg&quot; alt=&quot;&quot;&gt;
+&lt;img src=&quot;http://ww1.sinaimg.cn/large/005ZsWKgjw1eprrq13pxej308606umx9.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;对于21~25，可以指定边界颜色&lt;code&gt;col=&lt;/code&gt;和填充色&lt;code&gt;bg=&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;颜色&quot;&gt;颜色&lt;/h4&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;参数&lt;/th&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;描述&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;col&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;默认的绘图颜色。某些函数（如lines和pie）可以接受一个含有颜色值的向量并自动循环使用&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;col.axis&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;坐标轴刻度文字的颜色&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;col.lab&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;坐标轴标签（名称）的颜色&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;col.main&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;标题颜色&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;col.sub&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;副标题颜色&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;fg&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;图形的前景色&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;bg&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;图形的背景色&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;p&gt;可以通过颜色小标、颜色名称、十六进制的颜色值、RGB值或HSV值来指定颜色。例如白色的等价表示方式有：col=1, col=&amp;quot;white&amp;quot;, col=&amp;quot;#FFFFFF&amp;quot;, col=rgb(1,1,1)和col=hsv(0,0,1)。&lt;/p&gt;
+
+&lt;p&gt;colors()可以返回所有可用颜色的名称。&lt;/p&gt;
+
+&lt;p&gt;R中也有多种用于创建连续型颜色向量的函数，包括rainbow(), heat.colors(), terrain.colors(), topo,colors(), cm.colors()。举例来说，rainbow(10)可以生成10中连续的&amp;quot;彩虹型&amp;quot;颜色。多阶灰度色可使用gray()函数生成。&lt;/p&gt;
+
+&lt;h4 id=&quot;文本属性&quot;&gt;文本属性&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;用于指定文本大小的参数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;参数&lt;/th&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;描述&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;cex&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;表示相对于默认大小缩放倍数的数值。默认大小为1，1.5表示放大为默认值的1.5倍&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;cex.axis&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;坐标轴刻度文字的缩放倍数&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;cex.lab&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;坐标轴标签（名称）的缩放倍数&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;cex.main&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;标题的缩放倍数&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;cex.sub&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;副标题的缩放倍数&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;ul&gt;
+&lt;li&gt;用于指定字体族、字号和字样的参数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;参数&lt;/th&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;描述&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;font&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;整数。用于指定绘图使用的字体样式。1=常规，2=粗体，3=斜体，4=粗斜体，5=符号字体&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;font.axis&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;坐标轴刻度文字的字体样式&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;font.lab&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;坐标轴标签（名称）的字体样式&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;font.main&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;标题的字体样式&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;font.sub&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;副标题的字体样式&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;ps&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;字体磅值（1磅约为1/72英寸）。文本的最终大小为ps*cex。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;family&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;绘制文本时使用的字体族。标准的取值为serif(衬线),sans(无衬线)和mono(等宽)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;h4 id=&quot;图像尺寸和边界尺寸&quot;&gt;图像尺寸和边界尺寸&lt;/h4&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;参数&lt;/th&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;描述&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;pin&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;以英寸表示的图形尺寸（宽和高）&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;mai&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;以数值向量表示的边界大小，顺序为&amp;quot;下，左，上，右&amp;quot;，单位为英寸&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;mar&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;以数值向量表示的边界大小，顺序为&amp;quot;下，左，上，右&amp;quot;，单位为英分&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;h3 id=&quot;添加文本、自定义坐标轴和图例&quot;&gt;添加文本、自定义坐标轴和图例&lt;/h3&gt;
+
+&lt;h4 id=&quot;标题&quot;&gt;标题&lt;/h4&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;参数&lt;/th&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;描述&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;main&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;主标题&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;sub&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;副标题&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;xlab&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;x坐标轴标签&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;ylab&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;y坐标轴标签&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;xlim&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;x坐标轴范围&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;ylim&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;y坐标轴范围&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;h4 id=&quot;坐标轴&quot;&gt;坐标轴&lt;/h4&gt;
+
+&lt;p&gt;可以使用函数axis()来创建自定义的坐标轴，而非使用R中默认坐标轴。&lt;/p&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;参数&lt;/th&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;描述&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;side&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;一个整数，表示在图形的哪边绘制坐标轴（1=下，2=左，3=上，4=右）&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;at&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;一个数值型向量，表示需要绘制刻度线的位置&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;labels&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;一个字符型向量，表示置于刻度线旁边的文字标签&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;pos&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;坐标轴线绘制位置的坐标（即与另一条坐标轴相交位置的值）&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;lty&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;线条类型&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;col&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;线条和刻度线颜色&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;las&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;标签是否平行于（=0）或垂直于（=2）坐标轴&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;tck&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;刻度线的长度，以相对于绘图区域大小的分数表示&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;h4 id=&quot;参考线&quot;&gt;参考线&lt;/h4&gt;
+
+&lt;p&gt;函数abline()可以用来为图形添加参考线。使用格式为：
+abline(h=yvalues, v=xvalues)&lt;/p&gt;
+
+&lt;h4 id=&quot;图例&quot;&gt;图例&lt;/h4&gt;
+
+&lt;p&gt;函数legend()添加图例，其使用格式为：
+legend(location，title, legend, ...)&lt;/p&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;参数&lt;/th&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;描述&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;location&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;指定图例的位置&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;title&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;图例标题的字符串（可选）&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;legend&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;图例标签组成的字符型向量&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;h4 id=&quot;文本标注&quot;&gt;文本标注&lt;/h4&gt;
+
+&lt;p&gt;可以通过函数text()和mtext()将文本添加到图形上。text()可向绘图区域内部添加文本，而mtext()可以向图形的四个边界之一添加文本。&lt;/p&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;参数&lt;/th&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;描述&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;location&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;文本的位置参数，可为一对x，y坐标，也可通过指定location为locator(1)使用鼠标来交互式地确定摆放位置&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;pos&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;文本相对于位置参数的方位&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;side&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;指定用来放置文本的边&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;h3 id=&quot;图形的组合&quot;&gt;图形的组合&lt;/h3&gt;
+
+&lt;p&gt;在par()函数中使用图形参数mfrow=c(nrows,ncols)来创建按行填充的、行数为nrows、列数为ncols的图形矩阵，另外，可以使用nfcol=c(nrows,ncols)按列填充矩阵。&lt;/p&gt;
+</description>
+      <pubDate>Mon, 23 Feb 2015 00:00:00 +0000</pubDate>
+      <link>/blog/r-graph.html</link>
+      <guid isPermaLink="true">/blog/r-graph.html</guid>
+    </item>
+    
+    <item>
+      <title>Python小结</title>
+      <description>&lt;p&gt;用了将近3个月的python，也写了一些小程序，前几天看了&lt;a href=&quot;http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000&quot;&gt;廖雪峰的Python教程&lt;/a&gt;，感觉写的很不错，故从头到尾看了几遍，摘录其中我认为应该掌握的部分，即为这篇小结。&lt;/p&gt;
+
+&lt;hr&gt;
+
+&lt;h3 id=&quot;python缺点&quot;&gt;python缺点&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;运行速度慢，解释型语言&lt;/li&gt;
+&lt;li&gt;代码不能加密&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;python解释器&quot;&gt;python解释器&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;CPython&lt;/li&gt;
+&lt;li&gt;IPython&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- more --&gt;
+
+&lt;p&gt;&lt;strong&gt;print语句用逗号隔开就可以连成一串输出&lt;/strong&gt;
+&lt;strong&gt;python是大小写敏感的&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;缩进的利与弊&quot;&gt;缩进的利与弊&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;好处：
+
+&lt;ul&gt;
+&lt;li&gt;强迫你写出格式化的代码&lt;/li&gt;
+&lt;li&gt;强迫你写出缩进较少的代码，你会倾向与把一段很长的代码拆分成若干函数，从而得到缩进较少的代码&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;坏处：
+
+&lt;ul&gt;
+&lt;li&gt;&amp;quot;复制-粘贴&amp;quot;功能失效，这是最坑爹的地方。当你重构代码时，粘贴过去的代码必须重新检查缩进是否正确。
+*IDE很难像Java代码那样格式化Python代码&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;字符编码&quot;&gt;字符编码&lt;/h3&gt;
+
+&lt;p&gt;Unicode标准把所有语言都统一到一套编码中，如果统一成Unicode编码，乱码问题虽然从此消失，但如果你写的文本全是英文的话，用Unicode编码比ASCII编码需要多一倍的存储空间，所以就出现了把Unicode编码转化为&amp;quot;可变长编码&amp;quot;的UTF-8编码。
+```python&lt;/p&gt;
+
+&lt;h1 id=&quot;!/usr/bin/env-python&quot;&gt;!/usr/bin/env python&lt;/h1&gt;
+
+&lt;h1 id=&quot;---coding:-utf-8---&quot;&gt;-&lt;em&gt;- coding: utf-8 -&lt;/em&gt;-&lt;/h1&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;
+&lt;span class=&quot;cp&quot;&gt;### list、tuple、dict、set
+&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;：列表&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，可以随时添加和删除其中的元素。&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;添加，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pop&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;删除&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tuple&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;：元组&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，一旦初始化就不能修改。个人觉得有点像&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Java&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;中的枚举（有待考证），&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tuple&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;的单元素写法&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;：字典&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，在&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Java&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;中称为&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，使用键&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;值（&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;）存储，具有极快的查找速度，但内存浪费多&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;的&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;必须是不可变对象&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;：集合&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([])&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，元素不能重复，要创建一个&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，需要提供一个&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;作为输入集合，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;添加，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;remove&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;删除&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;### 不可变对象
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;是不可变对象，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;是可变对象&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;### 函数
+&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pass&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;语句什么都不做，可以用来作为占位符&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;函数的默认参数必须是不可变对象&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;可变参数允许你传入&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;个或任意个参数，这些可变参数在函数调用时自动组装为一个&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tuple&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;关键字参数允许你传入&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;个或任意个含参数名的参数，这些关键字参数在函数内部自动组装成一个&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dict&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;是可变参数，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;接收的是&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tuple&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kw&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;是关键字参数，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kw&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;接收的是&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dict&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;### 列表生成式
+&lt;/span&gt;    &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;11&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;### 函数式编程
+&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;reduce&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;filter&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;函数接收两个参数，一个是函数，一个是序列，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;将传入的函数一次作用到序列的每个元素，并把结果作为行的&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;返回&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;reduce&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;函数也接受两个参数，和&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;一样，一个参数是函数，一个是序列，不同的是，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;reduce&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;把结果继续和序列的下一个元素做累积计算&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;函数用于过滤序列，参数类型和&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;一样，不同的是，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;把传入的函数一次作用于每个元素，然后根据返回值是&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;还是&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;False&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;决定保留或丢弃该元素&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;排序算法&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sorted&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;也是一个高阶函数，可以接收一个比较函数来实现自定义的排序&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;返回函数&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;闭包&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Closure&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;程序：返回函数不要引用任何循环变量，或者后续会发生变化的变量&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;匿名函数&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;关键字&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lambda&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;表示匿名函数，冒号前面的&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;表示函数参数（&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lambda&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;匿名函数只能有一个表达式，不用写&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;用匿名函数有个好处，因为函数没有名字，不必担心函数名冲突&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;装饰器&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;偏函数&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;functools&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;partial&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;的作用就是把一个函数的某些值固定住（也就是设置默认值），返回一个新的函数&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;### 面向对象编程
+&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;类和实例&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;类是创建实例的模板，实例是一个一个具体的对象。&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;访问限制&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;要让内部属性不被外部访问，可以把属性的名称前加上两个下划线&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，在&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;python&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;中，实例的变量名如果以&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;开头，就变成了一个私有变量（&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;private&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;），只有内部能访问，外部不能访问。&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;继承和多态&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;继承可以把父类的所有功能都直接拿过来，这样就不必从零做起，子类只需要新增自己特有的方法，也可以把父类不适合的方法覆盖重写。&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;获取对象信息&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;判断对象类型，返回&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;类型&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;isinstance&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;判断&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;的类型，判断的是一个对象是否是该类型本身，或者位于该类型的父继承链上。&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;使用&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;判断的基本类型也可以用&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;isinstance&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;判断&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;获得一个对象的所有属性和方法，返回一个包含字符串的&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;list&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;使用&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__slots__&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;**:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;限制&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;能添加的属性，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__slots__&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;定义的属性仅对当前类起作用，对继承的子类不起作用&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;使用&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;@property&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;python&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;内置的@property装饰器负责把一个方法变成属性调用的&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;多重继承&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;### 错误、调试和测试
+&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;可以在&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;except&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;语句块后面加一个&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，但没有错误发生时，会自动执行&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;语句&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;except&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;捕获错误可以跨越多层调用&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;raise&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;抛出异常&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;### IO编程
+&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;with&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;语句为&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;finally&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;编程范式的一种替代，用于对资源访问进行控制的场合。&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;with&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;语句确保不管使用过程中是否发生异常都执行必要的&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;清理&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;操作，释放资源，比如文件使用后自动关闭、线程中锁的自动获取和释放等。&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;abspath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;、&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(,)&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;、&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(,)&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;、&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;splittext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;序列化：把变量从内存中变成可存储或传输的过程，在&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Python&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;中称为&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pickling&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，模块为&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cPickle&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;和&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pickle&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;。推荐使用&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;### 进程与线程
+&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;多进程与多线程最大的不同在于，多进程中，同一个变量，各自有一份拷贝存在于每个进程中，互不影响，而多线程中，所有变量都由所有线程共享&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;进程&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vs&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;线程&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;计算密集型&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vs&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IO&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;密集型&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;异步&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IO&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;分布式进程&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;### 正则表达式
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pass&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;### 常用内建模块
+&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;collections&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;**&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;namedtuple&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;deque&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;defaultdict&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;OrderedDict&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;base64&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hashlib&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;itertools&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;### Web开发
+&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Web&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;应用开发经历的阶段：&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;静态&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Web&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;页面：由文本编辑器直接编辑并生成静态的&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HTML&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;页面，如果要修改&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Web&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;页面的内容，就需要再次编辑&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HTML&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;源文件，早期的互联网&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Web&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;页面就是静态的。&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CGI&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;：由于静态&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Web&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;页面无法和用户交互，比如用户填写了一个注册表单，静态&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Web&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;页面就无法处理。要处理用户发送的动态数据，出现了&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Common&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Gateway&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Interface&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，简称&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;CGI&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，用&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;和&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;编写&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ASP&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;JSP&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PHP&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;：由于&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Web&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;应用特点是修改频繁，用&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;和&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;这样的低级语言非常不适合&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Web&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;开发，而脚本语言由于开发效率高，与&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HTML&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;结合紧密，因此，迅速取代了&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;CGI&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;模式。&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MVC&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;：为了解决直接用脚本语言嵌入&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HTML&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;导致的可维护性差的问题，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Web&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;应用也引入了&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;View&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Controller&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;的模式，来简化&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Web&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;开发。&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HTTP&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;请求的流程：&lt;/span&gt;
+    &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;浏览器首先向服务器发送&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HTTP&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;请求，请求包括：&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;方法：&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;还是&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;POST&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;仅请求资源，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;POST&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;会附带用户数据&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;路径：&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;full&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;；&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;域名：由&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Host&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;头指定：&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Host&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;：&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;www&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sina&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cn&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;以及其他一些相关&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Header&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，如果是&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;POST&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，那么请求还包括一个&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Body&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，包含用户数据&lt;/span&gt;
+    &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;服务器向浏览器返回&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HTTP&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;响应，响应包括：&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;响应代码：&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;200&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;表示成功，&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xx&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;表示重定向，&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xx&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;表示客户端发送的请求有错误，&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xx&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;表示服务器端处理时发生错误&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;响应类型：有&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Content&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Type&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;指定&lt;/span&gt;
+    &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;如果浏览器还需要继续向服务器请求其他资源，比如图片，就再次发出&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;HTTP&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;请求，重复步骤&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;、&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;WSGI&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;接口&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Web&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Server&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Gateway&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Interface&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+      <pubDate>Mon, 05 Jan 2015 00:00:00 +0000</pubDate>
+      <link>/blog/python-summary.html</link>
+      <guid isPermaLink="true">/blog/python-summary.html</guid>
+    </item>
+    
+    <item>
+      <title>2014年终总结</title>
+      <description>&lt;p&gt;不知不觉，2015年已经到了，算下来自从高中结束，自己就已经很少写这种有点长又有点带着检讨气质的文章了（高中时写的检讨可是当着全班念的:P），随着日子一天天过去，回头想想现在的自己确实和以前有了很大的不同，但想细细去数具体的不同却又说不出来，唯有记下此刻自己脑海中一年的感受，留待以后回眸，勿忘最初的自己。&lt;/p&gt;
+
+&lt;h2 id=&quot;关于学习&quot;&gt;关于学习&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;学业：经历了去年科大半年的蹂躏之后，今年上半年和去年下半年相比算是轻松多了，想想去年刚入学那会，想学点底层的东西，选了嵌入式方向，对于本科搞软件的确实有点吃力；学校还出台了新政策：重点课程10%的淘汰率；加上我又竞聘做了班长，也算是锻炼自己吧，晚上11点半之后回宿舍是常事，现在回过头来想，貌似科大一年的学习时间，晚上11点半之前回宿舍的次数屈指可数，当然氛围也在那儿，而且事实证明，大家找的实习都还不错，努力总是有回报的:)
+在此列一下这一年来自己的课程和成绩：
+&amp;lt;!-- more --&amp;gt;
+&lt;img src=&quot;http://ww3.sinaimg.cn/large/6120fe13jw1enuyd8cui5j20c00bowft.jpg&quot; alt=&quot;&quot;&gt;
+也旁听了其他方向的两门课程：信息安全和软件技术专题，全是保健哥的精品课程。最后整个学年取得了专业第8班级第4的成绩，这是我可以接受的结果，当然，还是有进步的空间，比如随机过程这门课。同时，我也发现自己特别喜欢做实验，一般实验设计的比较好的课程我积极性都很高，比如程序设计的二进制炸弹、算法的红黑树、嵌操（嵌入式操作系统:P）的start_kernel()代码分析等。&lt;/li&gt;
+&lt;li&gt;课外活动：学习之余，在春暖花开的3月份，也组织了一次校外联谊，和东大的妹子们一起去胥王山庄烧烤，在此期间也结识了现任的女朋友Tong，也促成了另一对，这活动的意义大大的！&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;关于实习&quot;&gt;关于实习&lt;/h2&gt;
+
+&lt;p&gt;作为一名联培生，实习地点在新生入学时就定了&lt;a href=&quot;http://www.siat.ac.cn/&quot;&gt;SIAT&lt;/a&gt;，现在在这边主要的方向是数据挖掘和机器学习。
+客观的讲联培，如果确实是家里比较困难，或者是对研究很感兴趣想读博士的，肯定是首选。如果两者都谈不上，请慎重，原因如下：
+1. 研究院重科研，轻工程，但我们科大软院的培养模式就是工程型人才，大家也是奔着这个去的。
+2. 虽说给你出了几万的学费，但你却晚半年毕业，半年时间你想想自己可以挣多少。
+3. 当你的同学们每月都大几千的实习工资，而你的工资得算着吃喝时，你会是什么感受。
+当然，既然也是自己当初不知情所作的选择，也没什么好抱怨的，而且现在的方向是我感兴趣的，算是幸运的，唯有静下心去学习，相信一切都会往好的方向走～&lt;/p&gt;
+
+&lt;h2 id=&quot;关于爱情&quot;&gt;关于爱情&lt;/h2&gt;
+
+&lt;p&gt;虽说去年就和现在的女朋友认识了，真正开始了解却是在今年3月份的联谊上，也直到6月份才确定关系，而也正是我要离开苏州的时候，刚开始就异地确实不容易，吵吵闹闹难免发生，还好现在我们的感情也算稳定，感谢妹子的信任与支持，希望明年的今天我们不再异地，也是2015年的一个大目标吧。&lt;/p&gt;
+
+&lt;h2 id=&quot;关于友情&quot;&gt;关于友情&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;7月份，凤凰花开的路口，我给全班都定制了班服，上面印有每个人的头像，班费不够是赵老板一锤定音：买，不够的我出！这样的班主任我们无不感激！在照集体照时，也是一道非常不错的风景线:)，算是给大家留下一个美好的回忆，永远的嵌入式2班！这里还是得再次祭出竞选班长时的口号：就业最好，光棍最少～(忘了说了，咱班就一个女生，还被隔壁嵌1班给拐走了，不过那男同胞是我老乡，大伙也就忍了):P&lt;/li&gt;
+&lt;li&gt;室友阮阮也是先我一步去实习了，想想估计以后再难有坐在一起操作(DOTA2)的机会了，当初QQ发一句&amp;quot;操作&amp;quot;，真的是胜过千言万语，在此也祝你在大百度越混越开吧～&lt;/li&gt;
+&lt;li&gt;还有小郁，多谢你千里托同学寄过来的茶叶；炸智，日本的妹子应该很不错吧；沈公子，2W奖学金还剩多少；大家各奔东西，愿大家一路珍重！&lt;/li&gt;
+&lt;li&gt;7月底来到深圳，高中铁哥们bo、狒狒给我接风洗尘，爽哉，这下半年也聚了好几次，靠谱的兄弟～&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;关于书籍&quot;&gt;关于书籍&lt;/h2&gt;
+
+&lt;p&gt;今年看的书并不多，还是列一下：
+上半年学业重，基本上都是上课的课本，《算法导论》、《深入理解计算机系统》等都是经典，都是跟着课程在看，后来找工作肯定还是要温习的。
+期间偷闲看了众人推荐的《黑客与画家》，却没找到真正吸引我的点，个人觉得讲的有点泛，看上去说的很有道理，实际上给我的指导一般。
+下半年大部分都是自学：
++ 《数学之美》这本书基本看完，科普了一下从嵌入式转到数据挖掘的小白，吴军博士用这种通俗易懂的方式来讲数学，赞！
++ 《机器学习实战》看了将近一半，用python来实现机器学习的各种算法，非常对我的胃口
++ 《PRML》圣经来了，可惜是全英文的，目前就自己关注的几章多看了几遍，每次看都会有不一样的收获
++ 《神雕侠侣》于妈的雷剧无力吐槽，唯有去回味书中的经典&lt;/p&gt;
+
+&lt;h2 id=&quot;关于计划&quot;&gt;关于计划&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;好好经营自己的博客，保持一周2-3篇的节奏&lt;/li&gt;
+&lt;li&gt;参加开源项目，github要多多contributions&lt;/li&gt;
+&lt;li&gt;文本挖掘这块还是得更加深入的学，多读写国外大牛的paper，提炼自己的观点&lt;/li&gt;
+&lt;li&gt;开始看面试的各种基础知识和算法，为找工作做准备&lt;/li&gt;
+&lt;li&gt;学点深度学习相关的内容，这个肯定是趋势
+想读的书列一下：
+技术：&lt;/li&gt;
+&lt;li&gt;《Pattern Recognition and Machine Learning》&lt;/li&gt;
+&lt;li&gt;《Python 源码剖析》&lt;/li&gt;
+&lt;li&gt;《深入理解Java虚拟机》&lt;/li&gt;
+&lt;li&gt;《Java性能优化权威指南》
+非技术：&lt;/li&gt;
+&lt;li&gt;《如何变得有思想》阮一峰&lt;/li&gt;
+&lt;li&gt;《Rework》&lt;/li&gt;
+&lt;li&gt;《小王子》
+目前想到的就这么多，先写上吧&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;其他&quot;&gt;其他&lt;/h2&gt;
+
+&lt;p&gt;电脑真的已经不堪重负，之前用windows7、Ubuntu卡的不行，发热非常厉害，但12月份一怒之下装了Archlinux感觉好多了，用着Emacs+URxvt+zsh确实挺顺手的，不过qq的问题确实没有解决，算是一个遗憾，过两天就要换Mac pro了，对于我这种喜欢折腾电脑和各种系统的人，早就想见识下Mac的真面目了。
+来深圳半年煮面技术已经炉火纯青了，宿舍必备面条+鸡蛋+大头菜，经典台词：我下面给你吃哈:P
+好像没啥要扯的了，就这样吧，祝自己本命年红红火火，工作爱情双丰收吧～&lt;/p&gt;
+</description>
+      <pubDate>Wed, 31 Dec 2014 00:00:00 +0000</pubDate>
+      <link>/blog/summary.html</link>
+      <guid isPermaLink="true">/blog/summary.html</guid>
+    </item>
+    
+    <item>
+      <title>两种方法抓取落网所有专辑的音乐</title>
+      <description>&lt;p&gt;在落网上听音乐是一个非常享受的事情，唯美的封面、文字，瞬间就觉得自己置身于一个没有喧嚣、没有嘈杂的环境里，一切尽在不言中～
+最近在看爬虫相关的资料，想想正好用python爬爬落网练练手，说干就干，下面大致说下我爬落网的过程:&lt;/p&gt;
+
+&lt;h2 id=&quot;明确目标&quot;&gt;明确目标&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;爬下落网所有期的音乐，并按每期的名字建立目录，将该期的音乐存在所属期的目录下&lt;/li&gt;
+&lt;li&gt;程序能自动下载当前的最新一期&lt;/li&gt;
+&lt;li&gt;每首音乐需正确命名，因为落网的音乐链接使用编号命名的，得改用正确的歌名命名&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;先来两张图看看效果：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;目录：
+&lt;img src=&quot;http://ww4.sinaimg.cn/large/6120fe13jw1entwctqx52j20wh06pdkg.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;文件：
+&lt;img src=&quot;http://ww3.sinaimg.cn/large/6120fe13jw1entwf5kdp1j20kb070jv3.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;前期准备&quot;&gt;前期准备&lt;/h2&gt;
+
+&lt;p&gt;先说下我所用的工具：Archlinux + Emacs24.4 + python2.7 + firefox&lt;/p&gt;
+
+&lt;p&gt;Q：该用什么第三方库？&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;python关于爬虫的第三方库何其多，这里我提供两套方案：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;http://requests.readthedocs.org/zh_CN/latest/&quot;&gt;Requests&lt;/a&gt; 加载网页 + &lt;a href=&quot;http://www.crummy.com/software/BeautifulSoup/bs4/doc/index.zh.html&quot;&gt;BeautifulSoup&lt;/a&gt; 解析网页&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://scrapy.org&quot;&gt;Scrapy&lt;/a&gt;，&lt;code&gt;xpath&lt;/code&gt;很好用&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;抓取思路&quot;&gt;抓取思路&lt;/h2&gt;
+
+&lt;p&gt;两套方案的思路都是一样的：首先我得知道最新一期的编号，如果比我已经下载的期数大，则从此期数开始遍历一直到已经爬过的期数，进入每期单独的页面，得到每期的名字用于建立目录，每期的歌单有多少歌以及歌名用于下载和重命名。代码这块我就只讲&lt;code&gt;Requests&lt;/code&gt;+&lt;code&gt;BeautifulSoup&lt;/code&gt;:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;获取最新一期的编号，用Firebug查看html：
+&lt;img src=&quot;http://ww1.sinaimg.cn/large/6120fe13jw1entxgq1gcnj20fc03cq3o.jpg&quot; alt=&quot;&quot;&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;numberUrl&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;http://www.luoo.net&#39;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getTheMaxNumber&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;# get the html&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;numberResponse&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;numberUrl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;numberResponse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;encoding&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;utf-8&#39;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;numberSoup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;numberResponse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;lxml&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;# parse the html and get the number&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;numberText&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;numberSoup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_all&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;div&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;vol-item-lg&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;maxNumber&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r&#39;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d+&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;numberText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;maxNumber&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;进行比较，先读取保存文件目录下的number.txt看上次下载到了哪一期，如果最新期数大，则进入下载音乐的函数，否则返回：
+```python&lt;/p&gt;
+
+&lt;h1 id=&quot;compare&quot;&gt;compare&lt;/h1&gt;
+
+&lt;p&gt;if maxNumber &amp;gt; currentNumber:
+    for i in range(currentNumber + 1, maxNumber + 1):
+        downloadMusic(i)
+    # after download the music, should write the right number to number.txt
+    numberFile.write(str(maxNumber) + &amp;#39;\t&amp;#39; + time.strftime(&amp;#39;%Y-%m-%d %H:%M:%S&amp;#39;) + &amp;#39;\n&amp;#39;)
+    numberFile.close()
+else:
+    # do nothing
+    print &amp;#39;您已经下载了所有的期数，谢谢！\n&amp;#39;
+    return
+```&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;建立目录并下载音乐：
+先用Firebug查看页面：
+&lt;img src=&quot;http://ww4.sinaimg.cn/large/6120fe13jw1entxwx6hi8j20ao01vweq.jpg&quot; alt=&quot;&quot;&gt;
+&lt;img src=&quot;http://ww2.sinaimg.cn/large/6120fe13jw1entxzc87ehj20gn01imxk.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;得到期数ID
+&lt;code&gt;python
+albumId = (albumSoup.find_all(&amp;#39;span&amp;#39;, &amp;#39;vol-number rounded&amp;#39;)[0]).text
+&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;得到期数名字用来建立目录，最好是将名字间的空格去掉，不然后面wget时会出现问题
+&lt;code&gt;python
+albumName = (albumSoup.find_all(&amp;#39;span&amp;#39;, &amp;#39;vol-title&amp;#39;)[0]).text.replace(&amp;#39; &amp;#39;, &amp;#39;_&amp;#39;)
+&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;得到每首歌的名字用来重命名音乐
+&lt;code&gt;python
+musicList = (albumSoup.find_all(&amp;#39;a&amp;#39;, &amp;#39;trackname btn-play&amp;#39;))
+&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;建立目录：
+&lt;code&gt;python
+isExists = os.path.exists(saveDir)
+if not isExists:
+os.makedirs(saveDir)
+&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;使用wget下载mp3:
+```python
+for i in range(1, len(musicList) + 1):
+    currentMusicName = musicList[i - 1].text.replace(&amp;#39; &amp;#39;, &amp;#39;&lt;u&gt;&amp;#39;).replace(&amp;#39;.&lt;/u&gt;&amp;#39;, &amp;#39;.&amp;#39;).strip(&amp;#39;(&amp;#39;).strip(&amp;#39;)&amp;#39;)
+    cmd1 = &amp;#39;wget &amp;#39; + musicUrl + str(int(albumId)) + &amp;#39;/&amp;#39; + string.zfill(i,2) + &amp;#39;.mp3 &amp;#39; + &amp;#39;-O &amp;#39; + saveDir + currentMusicName + &amp;#39;.mp3&amp;#39;
+    cmd2 = &amp;#39;wget &amp;#39; + musicUrl + str(int(albumId)) + &amp;#39;/&amp;#39; + str(i) + &amp;#39;.mp3 &amp;#39; + &amp;#39;-O &amp;#39; + saveDir + currentMusicName + &amp;#39;.mp3&amp;#39;&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;if os.system(cmd1.encode(&#39;utf-8&#39;)) != 0:
+    os.system(cmd2.encode(&#39;utf-8&#39;))
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;完整代码&quot;&gt;完整代码&lt;/h2&gt;
+
+&lt;p&gt;完整代码请移步我的&lt;a href=&quot;https://github.com/jlovedragon/CrawLuoo/tree/master/requests_bs4&quot;&gt;github&lt;/a&gt;
+另一种方案Scrapy的思路一样，&lt;a href=&quot;https://github.com/jlovedragon/CrawLuoo/tree/master/scrapy&quot;&gt;代码&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;参考文献&quot;&gt;参考文献&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;http://requests.readthedocs.org/zh_CN/latest/&quot;&gt;Requests: HTTP for Humans&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.crummy.com/software/BeautifulSoup/bs4/doc/index.zh.html&quot;&gt;Beautiful Soup 4.2.0 文档&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://chenqx.github.io/2014/11/09/Scrapy-Tutorial-for-BBSSpider/&quot;&gt;Scrapy爬虫抓取网站数据&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+      <pubDate>Tue, 30 Dec 2014 00:00:00 +0000</pubDate>
+      <link>/blog/download-luoo-music.html</link>
+      <guid isPermaLink="true">/blog/download-luoo-music.html</guid>
+    </item>
+    
+    <item>
+      <title>ArchLinux安装与配置</title>
+      <description>&lt;p&gt;电脑在Ubuntu14.04下发热厉害，网页开多了也经常死机，也差不多该更新换代了，但目前资金不足，便决定再次安装轻量级的&lt;a href=&quot;https://www.archlinux.org/&quot;&gt;ArchLinux&lt;/a&gt;，鉴于之前失败过一次，这次更加小心了。
+先上图：
+&lt;img src=&quot;http://ww4.sinaimg.cn/large/6120fe13jw1enu2a88703j20qa09zn0y.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;安装archlinux&quot;&gt;安装ArchLinux&lt;/h2&gt;
+
+&lt;p&gt;这块直接参考&lt;a href=&quot;https://wiki.archlinux.org/index.php/Beginners%27_guidehttps://wiki.archlinux.org/&quot;&gt;ArchWiki&lt;/a&gt;，不喜欢英文的可以选择中文显示，ArchLinux的Wiki写的非常不错，一步一步照着敲肯定不会出错，这里我就写下几个我认为比较重要的地方：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;制作U盘镜像&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Linux用户可以直接用&lt;code&gt;dd&lt;/code&gt;命令，用U盘替换 /dev/sdx，如 /dev/sdb（不要加上数字，也就是说，不要键入 /dev/sdb1 之类的东西)：
+&lt;code&gt;$ dd bs=4M if=/path/to/archlinux.iso of=/dev/sdx &amp;amp;&amp;amp; sync&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Windows用户用Wiki上推荐的USBwriter制作的镜像可能引导不了，推荐大家使用&lt;a href=&quot;http://sourceforge.net/projects/win32diskimager/&quot;&gt;Win32 Disk Imager&lt;/a&gt;。&lt;/li&gt;
+&lt;li&gt;不过用这两种方式装完之后，都需要用Linux上的dd命令往U盘的前512字节写零来恢复它完整的容量：
+&lt;code&gt;$ dd count=1 bs=512 if=/dev/zero of=/dev/sdx &amp;amp;&amp;amp; sync&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;字符乱码问题&lt;/strong&gt; locale.gen不要全部配成zh开头的，还是加上en_US，这样安装完之后不会出现乱码。&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;登陆管理器&lt;/strong&gt; 如果进入不了图形界面，一定要检查一下自己是否安装了登陆管理器，我现在使用的是slim，轻量级，并配置为随机主题，如果登陆管理器进不了图形界面，一般是配置文件有问题，可以按Ctrl+Alt+F2再开一个终端用root进行修改。&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;钟爱的窗口管理器&quot;&gt;钟爱的窗口管理器&lt;/h2&gt;
+
+&lt;p&gt;先比较下我用过的这些wm：gnome，i3wm，awesome，xmonad，herbstluftwm&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;gnome还是挺好看的，我喜欢它的gdm，就是太大太占资源，本本吃不起；&lt;/li&gt;
+&lt;li&gt;i3wm用了将近一个月，配置简单，反应也不慢，但是我的chromium在里面运行时经常无故关闭，重装chromium，检查快捷键都没用，而且上面的i3bar看不习惯，就换了xmonad；&lt;/li&gt;
+&lt;li&gt;看了一点haskell之后配置了一下xmonad，发现确实不好配置，haskell这门语言也需要花时间去学习，就试试awesome；&lt;/li&gt;
+&lt;li&gt;相比xmonad，awesome配置起来还是很方面的，用了将近一个星期，感觉awesome过于复杂，而且那个bar也不好看，换成herbstluftwm；&lt;/li&gt;
+&lt;li&gt;目前用的就是herbstluftwm，配置简单，操作方便，运行速度也非常快，而且为了让窗口达到最大化，我直接去掉了状态栏。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;下面列一下我使用的配置文件中重要的配置(~/.config/herbstluftwm/autostart):&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;Mod=Mod4   # Use the super key as the main modifier
+feh --bg-scale /home/quentin/Entertainment/Pictures/niu.jpg # background
+xcompmgr -c # transparent
+# keybindings
+hc keybind Control-bracketleft spawn emacs
+hc keybind Control-F1 spawn deepin-screenshot
+hc keybind Control-F2 spawn chromium
+hc keybind Control-F3 spawn firefox
+hc keybind Control-F4 spawn /opt/ideaIU/bin/idea.sh
+hc keybind Control-F5 spawn virtualbox
+hc keybind Control-F6 spawn python /home/quentin/git/my_profile/OpenOrClosePSMouse.py
+hc keybind Control-F7 spawn evince # PDF
+hc keybind Control-F9 spawn deadbeef # music
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2 id=&quot;常用软件&quot;&gt;常用软件&lt;/h2&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align: center&quot;&gt;software&lt;/th&gt;
+&lt;th style=&quot;text-align: left&quot;&gt;description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Emacs&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;神的编辑器&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;Urxvt&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;最常用的终端&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;zsh&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;自动补全很给力&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;ibus&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;中文输入法&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;git&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;版本控制&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;chromium&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;书签同步太强大&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;firefox&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;离不开firebug等各种插件&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;IDEA&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;Java IDE&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;evince&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;看PDF&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: center&quot;&gt;deadbeef&lt;/td&gt;
+&lt;td style=&quot;text-align: left&quot;&gt;听音乐&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;p&gt;需要说的是deepin-screenshot这款截图软件，相比QQ上的截图工具也毫不逊色，但使用命令&lt;code&gt;yaourt -S deepin-screenshot&lt;/code&gt;安装会出现:
+&lt;code&gt;在构建deepin-pygtk时提示：无法下载pygtk_2.24.0-3deepin3.debian.tar.gz&lt;/code&gt;
+故需要在&lt;code&gt;/etc/pacman.conf&lt;/code&gt;中添加源:&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;[home_metakcahura_arch-deepin_Arch_Extra]
+SigLevel = Never
+Server = http://download.opensuse.org/repositories/home:/metakcahura:/arch-deepin/Arch_Extra/$arch
+# 若升级时若总是提示文件校验失败，使用备用地址即可
+# Server = http://anorien.csc.warwick.ac.uk/mirrors/download.opensuse.org/repositories/home:/metakcahura:/arch-deepin/Arch_Extra/$arch
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;再直接用pacman安装即可，详细请看我之前再Arch Forums上发的帖子&lt;a href=&quot;https://bbs.archlinuxcn.org/viewtopic.php?id=3040&quot;&gt;用yaourt安装deepin-screenshot失败，archlinux12.01-ideapadY460&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;配置文件下载&quot;&gt;配置文件下载&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/jlovedragon/profile/tree/master/archlinux&quot;&gt;github链接&lt;/a&gt;&lt;/p&gt;
+</description>
+      <pubDate>Mon, 29 Dec 2014 00:00:00 +0000</pubDate>
+      <link>/blog/archlinux-setup-configuration.html</link>
+      <guid isPermaLink="true">/blog/archlinux-setup-configuration.html</guid>
+    </item>
+    
+    <item>
+      <title>为什么要写Blog？</title>
+      <description>&lt;h2 id=&quot;初衷&quot;&gt;初衷&lt;/h2&gt;
+
+&lt;p&gt;其实关于这个问题，网上已经有很多很多回答，我觉得&lt;a href=&quot;http://www.ruanyifeng.com/home.html&quot;&gt;阮一峰&lt;/a&gt;写的&lt;a href=&quot;http://www.ruanyifeng.com/blog/2006/12/why_i_keep_blogging.html&quot;&gt;这个&lt;/a&gt;不错，另外，我也写几点自己的想法与感受：&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;强化学到的知识&lt;/strong&gt;，我意识到并不是自己学的东西少，而是学了不记录不回顾就忘了，等到在要用时又得重新来过，既影响时间效率，也不利于知识的积累与沉淀。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;尝试将自己的想法表达清楚&lt;/strong&gt;，如果表达不清楚，就说明自己理解的知识还不够清楚明晰，这样不仅可以提高自己的文字组织能力和逻辑思维能力，也会让自己学到的知识更加扎实。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;交到志同道合的朋友&lt;/strong&gt;，在分享自己的学习经历时，如果能遇到有同感的朋友互相交流，也是非常令人高兴的事儿。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;成长的点滴&lt;/strong&gt;，记录的点点滴滴，就是认识自己，面对自己的过程，在这个过程中，勿忘最初的自己，找到最好的自己。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;总结&quot;&gt;总结&lt;/h2&gt;
+
+&lt;p&gt;一份耕耘，一份收获，之所以将这篇博文作为自己独立博客的第一篇，就是要自己不要忘记初衷，坚持下去，成为持续思考和学习的人。&lt;/p&gt;
+</description>
+      <pubDate>Sun, 28 Dec 2014 00:00:00 +0000</pubDate>
+      <link>/blog/why-blog.html</link>
+      <guid isPermaLink="true">/blog/why-blog.html</guid>
+    </item>
+    
+  </channel>
+</rss>

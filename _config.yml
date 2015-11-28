@@ -1,0 +1,24 @@
+title: Quan Xu
+
+# 自定义post url
+permalink: /blog/:title.html
+timezone: Asia/Shenzhen
+
+# Overriden by GitHub Pages: https://help.github.com/articles/using-jekyll-with-pages#configuring-jekyll
+safe: true
+lsi: false
+#markdown: kramdown
+#kramdown:
+#  math_engine: mathjax
+markdown: redcarpet
+redcarpet:
+  extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "tables", "with_toc_data", "strikethrough", "underline"]
+
+# Keybase
+include:
+  - .well-known
+
+# White-listed plugins
+gems:
+  - jekyll-sitemap
+  - jekyll-gist

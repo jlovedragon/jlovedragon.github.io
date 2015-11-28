@@ -1,0 +1,20 @@
+---
+layout: default
+title: Quan Xu - Blog
+category: blog
+---
+
+<link rel="stylesheet" href="css/style.css">
+<section class="inner">
+  <ul class="posts">
+    {% for post in site.posts %}
+	  {% capture y %}{{post.date | date:"%Y"}}{% endcapture %}
+	  {% if year != y %}
+		{% assign year = y %}
+		<li class="listing-seperator">{{ y }}</li>
+	  {% endif %}
+    <style>#uniqueid:hover{background-color: #D3D3D3; text-decoration: none;}</style>
+    <a  id = "uniqueid" class="listing-item" href="{{ site.url }}{{ post.url }}" title="{{ post.title }}">{{ post.title }}<time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time></a>
+    {% endfor %}
+  </ul>
+</section>
