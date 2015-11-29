@@ -37,7 +37,7 @@
   <div class="header-container">
     <header class="inner">
       <nav>
-        <a class="" href="/Blog/">Blog</a>
+        <a class="" href="/">Blog</a>
         <a class="" href="/blog/categories.html">Achieve</a>
 		<a href="/wiki/">Wiki</a>
         <a href="/books/">Book</a>
@@ -81,11 +81,11 @@
   	2014年12月29日
   	<i class="space"></i>
   	<i class="fa fa-archive"></i>
-  	<a class="tag" href="/category/#"></a> 
+  	<a class="tag" href="/category/#Linux">Linux</a> 
   	<i class="space"></i>
   	<i class="fa fa-tags"></i>
   	
-  	<i class="space"></i> 字数:2231
+  	<i class="space"></i> 字数:2229
   </ul>
 </div>
 </div>
@@ -104,15 +104,12 @@
 <p>这块直接参考<a href="https://wiki.archlinux.org/index.php/Beginners%27_guidehttps://wiki.archlinux.org/">ArchWiki</a>，不喜欢英文的可以选择中文显示，ArchLinux的Wiki写的非常不错，一步一步照着敲肯定不会出错，这里我就写下几个我认为比较重要的地方：</p>
 
 <ul>
-<li><p><strong>制作U盘镜像</strong></p>
-
-<ul>
+<li><strong>制作U盘镜像</strong></li>
 <li>Linux用户可以直接用<code>dd</code>命令，用U盘替换 /dev/sdx，如 /dev/sdb（不要加上数字，也就是说，不要键入 /dev/sdb1 之类的东西)：
-<code>$ dd bs=4M if=/path/to/archlinux.iso of=/dev/sdx &amp;&amp; sync</code></li>
+    <code>$ dd bs=4M if=/path/to/archlinux.iso of=/dev/sdx &amp;&amp; sync</code></li>
 <li>Windows用户用Wiki上推荐的USBwriter制作的镜像可能引导不了，推荐大家使用<a href="http://sourceforge.net/projects/win32diskimager/">Win32 Disk Imager</a>。</li>
-<li>不过用这两种方式装完之后，都需要用Linux上的dd命令往U盘的前512字节写零来恢复它完整的容量：
-<code>$ dd count=1 bs=512 if=/dev/zero of=/dev/sdx &amp;&amp; sync</code></li>
-</ul></li>
+<li><p>不过用这两种方式装完之后，都需要用Linux上的dd命令往U盘的前512字节写零来恢复它完整的容量：
+    <code>$ dd count=1 bs=512 if=/dev/zero of=/dev/sdx &amp;&amp; sync</code></p></li>
 <li><p><strong>字符乱码问题</strong> locale.gen不要全部配成zh开头的，还是加上en_US，这样安装完之后不会出现乱码。</p></li>
 <li><p><strong>登陆管理器</strong> 如果进入不了图形界面，一定要检查一下自己是否安装了登陆管理器，我现在使用的是slim，轻量级，并配置为随机主题，如果登陆管理器进不了图形界面，一般是配置文件有问题，可以按Ctrl+Alt+F2再开一个终端用root进行修改。</p></li>
 </ul>

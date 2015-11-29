@@ -1,8 +1,7 @@
 ---
-published: true
 layout: post
-title: "ArchLinux安装与配置"
-date: 2014-12-29
+title: ArchLinux安装与配置
+categories: [Linux]
 ---
 
 电脑在Ubuntu14.04下发热厉害，网页开多了也经常死机，也差不多该更新换代了，但目前资金不足，便决定再次安装轻量级的[ArchLinux](https://www.archlinux.org/)，鉴于之前失败过一次，这次更加小心了。
@@ -14,10 +13,10 @@ date: 2014-12-29
 这块直接参考[ArchWiki](https://wiki.archlinux.org/index.php/Beginners%27_guidehttps://wiki.archlinux.org/)，不喜欢英文的可以选择中文显示，ArchLinux的Wiki写的非常不错，一步一步照着敲肯定不会出错，这里我就写下几个我认为比较重要的地方：
 
 * **制作U盘镜像**
-    * Linux用户可以直接用`dd`命令，用U盘替换 /dev/sdx，如 /dev/sdb（不要加上数字，也就是说，不要键入 /dev/sdb1 之类的东西)：
+1. Linux用户可以直接用`dd`命令，用U盘替换 /dev/sdx，如 /dev/sdb（不要加上数字，也就是说，不要键入 /dev/sdb1 之类的东西)：
         ` $ dd bs=4M if=/path/to/archlinux.iso of=/dev/sdx && sync `
-    * Windows用户用Wiki上推荐的USBwriter制作的镜像可能引导不了，推荐大家使用[Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/)。
-    * 不过用这两种方式装完之后，都需要用Linux上的dd命令往U盘的前512字节写零来恢复它完整的容量：
+2. Windows用户用Wiki上推荐的USBwriter制作的镜像可能引导不了，推荐大家使用[Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/)。
+3. 不过用这两种方式装完之后，都需要用Linux上的dd命令往U盘的前512字节写零来恢复它完整的容量：
         ` $ dd count=1 bs=512 if=/dev/zero of=/dev/sdx && sync `
 
 * **字符乱码问题** locale.gen不要全部配成zh开头的，还是加上en_US，这样安装完之后不会出现乱码。
