@@ -423,7 +423,7 @@ Z[M][N]:每个文档中每个词的所属主题
 
 &lt;p&gt;选取对训练数据具有分类能力的特征，提高决策树的学习效率。通常采用&lt;code&gt;信息增益(ID3)&lt;/code&gt;或&lt;code&gt;信息增益比(C4.5)&lt;/code&gt;为特征选择的准则。&lt;/p&gt;
 
-&lt;h3 id=&quot;熵(entropy)&quot;&gt;熵(entropy)&lt;/h3&gt;
+&lt;h3 id=&quot;熵-entropy&quot;&gt;熵(entropy)&lt;/h3&gt;
 
 &lt;p&gt;熵为随机变量不确定的度量，定义为信息的期望值，名字来源于信息论之父香农。&lt;/p&gt;
 
@@ -596,7 +596,7 @@ ID3算法存在的&lt;code&gt;缺点&lt;/code&gt;：
 1. ID3算法在选择根节点和内部节点中的分支属性时，采用信息增益作为评价标准。信息增益的缺点是倾向于选择取值较多的属性，但在有些情况下这类属性可能不会提供太多有价值的信息。
 2. ID3算法只能对描述属性为离散型属性的数据集构造决策树。&lt;/p&gt;
 
-&lt;h2 id=&quot;c4.5算法&quot;&gt;C4.5算法&lt;/h2&gt;
+&lt;h2 id=&quot;c4-5算法&quot;&gt;C4.5算法&lt;/h2&gt;
 
 &lt;p&gt;C4.5算法之所以是最常用的决策树算法，是因为它继承了ID3算法的所有优点并对ID3算法进行了改进和补充。C4.5算法采用信息增益率作为选择分支属性的标准，并克服了ID3算法中信息增益选择属性时偏向选择取值多的属性的不足，并能够完成对连续属性离散化的处理；还能够对不完整数据进行处理。C4.5算法属于基于信息论Information Theory的方法，以信息论为基础，以信息熵和信息增益度为衡量标准，从而实现对数据的归纳和分类。
 C4.5算法主要做出了以下方面的改进:
@@ -687,7 +687,7 @@ k值选择：k一般取比较小的数值。但k值过小，模型越复杂，�
       <title>统计学习方法概述</title>
       <description>&lt;h2 id=&quot;统计学习三要素&quot;&gt;统计学习三要素&lt;/h2&gt;
 
-&lt;h3 id=&quot;模型(model)&quot;&gt;模型(model)&lt;/h3&gt;
+&lt;h3 id=&quot;模型-model&quot;&gt;模型(model)&lt;/h3&gt;
 
 &lt;p&gt;模型即为所要学习的条件概率分布或决策函数。
 &lt;code&gt;
@@ -695,7 +695,7 @@ k值选择：k一般取比较小的数值。但k值过小，模型越复杂，�
 由条件概率表示的模型为概率模型。
 &lt;/code&gt;&lt;/p&gt;
 
-&lt;h3 id=&quot;策略(strategy)&quot;&gt;策略(strategy)&lt;/h3&gt;
+&lt;h3 id=&quot;策略-strategy&quot;&gt;策略(strategy)&lt;/h3&gt;
 
 &lt;p&gt;按照什么样的准则学习或选择最优模型。
 &lt;code&gt;
@@ -703,7 +703,7 @@ k值选择：k一般取比较小的数值。但k值过小，模型越复杂，�
 结构风险最小化(SRM)等价于正则化
 &lt;/code&gt;&lt;/p&gt;
 
-&lt;h3 id=&quot;算法(algorithm)&quot;&gt;算法(algorithm)&lt;/h3&gt;
+&lt;h3 id=&quot;算法-algorithm&quot;&gt;算法(algorithm)&lt;/h3&gt;
 
 &lt;p&gt;学习模型的具体计算方法。&lt;/p&gt;
 
@@ -711,11 +711,11 @@ k值选择：k一般取比较小的数值。但k值过小，模型越复杂，�
 
 &lt;h2 id=&quot;模型选择的方法&quot;&gt;模型选择的方法&lt;/h2&gt;
 
-&lt;h3 id=&quot;正则化(regularization)&quot;&gt;正则化(regularization)&lt;/h3&gt;
+&lt;h3 id=&quot;正则化-regularization&quot;&gt;正则化(regularization)&lt;/h3&gt;
 
 &lt;p&gt;正则化即为在经验风险上加一个正则化项，正则化项一般是模型复杂度的单调递增函数，模型越复杂，正则化项就越大。它一般是参数向量的L2范数，作用是选择经验风险与模型复杂度同时较小的模型。&lt;/p&gt;
 
-&lt;h3 id=&quot;交叉验证(cross-validation)&quot;&gt;交叉验证(cross-validation)&lt;/h3&gt;
+&lt;h3 id=&quot;交叉验证-cross-validation&quot;&gt;交叉验证(cross-validation)&lt;/h3&gt;
 
 &lt;p&gt;将数据集随机分为三部分：
 &lt;code&gt;
@@ -760,7 +760,7 @@ TN(True Negative): 将负类预测为负类数
 &lt;p&gt;需要用到&lt;a href=&quot;http://linux.die.net/man/1/expect&quot;&gt;expect语法&lt;/a&gt;，代码如下：
 ```python&lt;/p&gt;
 
-&lt;h1 id=&quot;!/usr/bin/expect--f&quot;&gt;!/usr/bin/expect -f&lt;/h1&gt;
+&lt;h1 id=&quot;usr-bin-expect-f&quot;&gt;!/usr/bin/expect -f&lt;/h1&gt;
 
 &lt;p&gt;set username YourUserName    // 设置用户名
 set host &lt;strong&gt;&lt;em&gt;.&lt;/em&gt;&lt;/strong&gt;.&lt;strong&gt;&lt;em&gt;.&lt;/em&gt;&lt;/strong&gt;     // 设置主机IP
@@ -804,7 +804,7 @@ ssh成功登录，直接按快捷键就能快速登录~ &lt;/p&gt;
 
 &lt;!-- more --&gt;
 
-&lt;h2 id=&quot;plot()函数&quot;&gt;plot()函数&lt;/h2&gt;
+&lt;h2 id=&quot;plot-函数&quot;&gt;plot()函数&lt;/h2&gt;
 
 &lt;p&gt;plot()是R中为对象作图的一个泛型函数，它的输出将根据所绘制对象的类型的不同而变化。先用&lt;code&gt;help(plot)&lt;/code&gt;看下介绍。
 用法为&lt;code&gt;plot(x, y, ...)&lt;/code&gt;，其中重点说下type参数。&lt;/p&gt;
@@ -1186,9 +1186,9 @@ legend(location，title, legend, ...)&lt;/p&gt;
 &lt;p&gt;Unicode标准把所有语言都统一到一套编码中，如果统一成Unicode编码，乱码问题虽然从此消失，但如果你写的文本全是英文的话，用Unicode编码比ASCII编码需要多一倍的存储空间，所以就出现了把Unicode编码转化为&amp;quot;可变长编码&amp;quot;的UTF-8编码。
 ```python&lt;/p&gt;
 
-&lt;h1 id=&quot;!/usr/bin/env-python&quot;&gt;!/usr/bin/env python&lt;/h1&gt;
+&lt;h1 id=&quot;usr-bin-env-python&quot;&gt;!/usr/bin/env python&lt;/h1&gt;
 
-&lt;h1 id=&quot;---coding:-utf-8---&quot;&gt;-&lt;em&gt;- coding: utf-8 -&lt;/em&gt;-&lt;/h1&gt;
+&lt;h1 id=&quot;coding-utf-8&quot;&gt;-&lt;em&gt;- coding: utf-8 -&lt;/em&gt;-&lt;/h1&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;
 &lt;span class=&quot;cp&quot;&gt;### list、tuple、dict、set
 &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;：列表&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;，可以随时添加和删除其中的元素。&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;添加，&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pop&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;删除&lt;/span&gt;
