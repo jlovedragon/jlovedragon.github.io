@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google-site-verification" content="aexITLS38FdIRzwj25OVWxm87rpa9l-UV0URTyC9cTs" />
   <title>
-    统计学习方法概述
+    Ubuntu14.04编译OpenJDK7
     - Quan Xu
   </title>
   <link rel="stylesheet" href="../css/site.css">
@@ -74,18 +74,18 @@
 <div class="inner">
 <div class = "post-header">
   <h1>
-    统计学习方法概述
+    Ubuntu14.04编译OpenJDK7
   </h1>
   <ul class="meta">
   	<i class="fa fa-calendar"></i>
-  	2015年05月25日
+  	2015年07月15日
   	<i class="space"></i>
   	<i class="fa fa-archive"></i>
-  	<a class="tag" href="/category/#Machine Learning">Machine Learning</a> 
+  	<a class="tag" href="/category/#JAVA">JAVA</a> 
   	<i class="space"></i>
   	<i class="fa fa-tags"></i>
   	
-  	<i class="space"></i> 字数:705
+  	<i class="space"></i> 字数:1991
   </ul>
 </div>
 </div>
@@ -95,62 +95,77 @@
   	<div id="main" class="span9">
   		<div class="post">
 		<div id="content">
-  			<h2 id="统计学习三要素">统计学习三要素</h2>
+  			<p>最近在看<a href="http://book.douban.com/subject/6522893/">深入理解Java虚拟机</a>，第一章有讲到自己编译OpenJDK7，故用Ubuntu14.04实践下。</p>
 
-<h3 id="模型-model">模型(model)</h3>
+<h2 id="构建编译环境">构建编译环境</h2>
 
-<p>模型即为所要学习的条件概率分布或决策函数。
-<code>
-由决策函数表示的模型为非概率模型。
-由条件概率表示的模型为概率模型。
-</code></p>
+<h3 id="jdk1-7-0_45">JDK1.7.0_45</h3>
 
-<h3 id="策略-strategy">策略(strategy)</h3>
-
-<p>按照什么样的准则学习或选择最优模型。
-<code>
-经验风险最小化(ERM)会产生过拟合问题
-结构风险最小化(SRM)等价于正则化
-</code></p>
-
-<h3 id="算法-algorithm">算法(algorithm)</h3>
-
-<p>学习模型的具体计算方法。</p>
-
-<h2 id="模型选择的方法">模型选择的方法</h2>
-
-<h3 id="正则化-regularization">正则化(regularization)</h3>
-
-<p>正则化即为在经验风险上加一个正则化项，正则化项一般是模型复杂度的单调递增函数，模型越复杂，正则化项就越大。它一般是参数向量的L2范数，作用是选择经验风险与模型复杂度同时较小的模型。</p>
-
-<h3 id="交叉验证-cross-validation">交叉验证(cross-validation)</h3>
-
-<p>将数据集随机分为三部分：</p>
-<div class="highlight"><pre><code class="language-" data-lang="">训练集(training set): 训练模型，占比60%
-交叉验证集(cross validation set): 模型的选择，占比20%
-测试集(test set): 最终对学习方法的评估，占比20%
+<p>到oracle官网上下载JDK1.7.0_45，解压到指定目录。</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">sudo tar zxvf jdk-7u45-linux-x64.tar.gz -C /usr/lib/jvm
 </code></pre></div>
-<h2 id="泛化能力">泛化能力</h2>
-
-<p>该方法学习到的模型对未知数据的预测能力。</p>
-
-<h2 id="二类分类问题的常用评价指标f1值">二类分类问题的常用评价指标F1值</h2>
-<div class="highlight"><pre><code class="language-" data-lang="">TP(True Positive): 将正类预测为正类数
-FN(False Negative): 将正类预测为负类数
-FP(False Positive): 将负类预测为正类数
-TN(True Negative): 将负类预测为负类数
+<h3 id="ant1-9-6">Ant1.9.6</h3>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">sudo tar zxvf apache-ant-1.9.6-bin.tar.gz -C /usr/lib/ant
 </code></pre></div>
-<p>精确率(precision): $$P = \frac{TP}{TP + FP}$$</p>
+<h3 id="配置环境变量">配置环境变量</h3>
 
-<p>召回率(recall): $$R = \frac{TP}{TP + FN}$$</p>
+<p>/etc/profile</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">JAVA_HOME</span><span class="o">=</span>/usr/lib/jvm/jdk1.7.0_45  
+<span class="nb">export </span><span class="nv">ANT_HOME</span><span class="o">=</span>/usr/lib/ant/apache-ant-1.9.6
+<span class="nb">export </span><span class="nv">CLASSPATH</span><span class="o">=</span>.:<span class="nv">$JAVA_HOME</span>/lib/dt.jar:<span class="nv">$JAVA_HOME</span>/lib/tools.jar    
+<span class="nv">PATH</span><span class="o">=</span><span class="nv">$CLASSPATH</span>:ANT_HOME/bin:<span class="nv">$JAVA_HOME</span>/bin:<span class="nv">$PATH</span>  
+<span class="nb">export </span>PATH 
+</code></pre></div>
+<p><code>source /etc/profile</code>使环境变量生效</p>
 
-<p>F1值为P和R的调和均值: $$\frac{2}{F1}=\frac{1}{P} + \frac{1}{R}$$</p>
+<h2 id="编译">编译</h2>
 
-<p>$$F1 = \frac{2TP}{2TP + FP + FN} = \frac{2PR}{P + R}$$</p>
+<h3 id="编写编译脚本">编写编译脚本</h3>
 
-<h2 id="参考资料">参考资料</h2>
+<p>在下载的OpenJDK7的源码目录下新建build.sh，编写如下脚本</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c">#!/bin/bash  </span>
+<span class="c">#设置语言  </span>
+<span class="nb">export </span><span class="nv">LANG</span><span class="o">=</span>C   
+<span class="c"># JDK安装路径，必须设置</span>
+<span class="nb">export </span><span class="nv">ALT_BOOTDIR</span><span class="o">=</span>/usr/lib/jvm/jdk1.7.0_45
 
-<p><a href="https://book.douban.com/subject/10590856/">《统计学习方法》</a></p>
+<span class="c">#允许自动下载依赖包  </span>
+<span class="nb">export </span><span class="nv">ALLOW_DOWNLOADS</span><span class="o">=</span><span class="nb">true</span>  
+
+<span class="c">#使用预编译头文件，不加这个编译会更慢一些 </span>
+<span class="nb">export </span><span class="nv">USE_PRECOMPILED_HEADER</span><span class="o">=</span><span class="nb">true</span>  
+
+<span class="c">#要编译的内容  </span>
+<span class="nb">export </span><span class="nv">BUILD_LANGTOOLS</span><span class="o">=</span><span class="nb">true  
+export </span><span class="nv">BUILD_JAXP</span><span class="o">=</span><span class="nb">false
+export </span><span class="nv">BUILD_JAXWS</span><span class="o">=</span><span class="nb">false
+export </span><span class="nv">BUILD_CORBA</span><span class="o">=</span><span class="nb">false  
+export </span><span class="nv">BUILD_HOSTPOT</span><span class="o">=</span><span class="nb">true  
+export </span><span class="nv">BUILD_JDK</span><span class="o">=</span><span class="nb">true</span>  
+
+<span class="c">#要编译的版本  </span>
+<span class="nb">export </span><span class="nv">SKIP_DEBUG_BUILD</span><span class="o">=</span><span class="nb">false  
+export </span><span class="nv">SKIP_FASTDEBUG_BUILD</span><span class="o">=</span><span class="nb">true  
+export </span><span class="nv">DEBUG_NAME</span><span class="o">=</span>debug  
+
+<span class="c">#把它设置为FALSE可以避免javaws和浏览器Java插件之类的部分build  </span>
+<span class="nv">BUILD_DEPLOY</span><span class="o">=</span><span class="nb">false</span>  
+
+<span class="c">#把它设置为false就不会build出安装包。因为安装包里有一些奇怪的依赖  </span>
+<span class="c">#但即便不build出它也已经得到完整的JDK镜像,所以还是不用build它  </span>
+<span class="nv">BUILD_INSTALL</span><span class="o">=</span><span class="nb">false</span>  ：
+
+<span class="c">#存放编译结果  </span>
+<span class="nb">export </span><span class="nv">ALT_OUTPUTDIR</span><span class="o">=</span>/home/mango/setup/openjdk/build
+
+<span class="nb">unset </span>CLASSPATH  
+<span class="nb">unset </span>JAVA_HOME  
+<span class="c">#make sanity &amp;&amp; make  </span>
+make 2&gt;&amp;1 | tee <span class="nv">$ALT_OUTPUTDIR</span>/build.log 
+</code></pre></div>
+<h3 id="编译">编译</h3>
+
+<p><code>./build.sh</code></p>
 
   		</div>
 		</div>
@@ -189,11 +204,11 @@ TN(True Negative): 将负类预测为负类数
     </li>
     
     <li style="text-align:left">
-      <span>15 Jul 2015 &raquo;</span> <a href="/blog/build-openjdk7.html">Ubuntu14.04编译OpenJDK7</a>
+      <span>10 Jun 2015 &raquo;</span> <a href="/blog/decision-tree.html">决策树</a>
     </li>
     
     <li style="text-align:left">
-      <span>10 Jun 2015 &raquo;</span> <a href="/blog/decision-tree.html">决策树</a>
+      <span>05 Jun 2015 &raquo;</span> <a href="/blog/knn.html">k近邻法</a>
     </li>
     
   </ul>

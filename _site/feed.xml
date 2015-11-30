@@ -7,6 +7,111 @@
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Mac多显示器之间的焦点切换</title>
+      <description>&lt;p&gt;13寸的MBP屏幕实在太小，故入手了DVI的转接口外接了公司台式机的显示器，内置显示器用来码代码，外接显示器用来看网页等,双屏显示妥妥的。&lt;/p&gt;
+
+&lt;p&gt;但很快发现多显示器之间的焦点切换非常麻烦，每次码代码时需要切换到浏览器查资料都需要用鼠标点外接的显示器，需要切换回来写代码时又要用鼠标点回来，作为一名高效（搞笑）的键盘党，这能忍？？？&lt;/p&gt;
+
+&lt;p&gt;于是速度网上查找攻略，果然找到完美解决办法，如下:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;首先需要到网上搜索并下载Mac上的鼠标点击程序&lt;strong&gt;Cliclick&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;接着便是使用神器Automator的时刻了，点击打开程序Automator，选择&lt;code&gt;服务&lt;/code&gt;, 接下来的步骤如下图:
+&lt;img src=&quot;http://ww1.sinaimg.cn/large/6120fe13jw1eyj531uatkj21ja11eh0d.jpg&quot; alt=&quot;&quot;&gt;
+写好脚本执行后，需要把脚本保存下来，可以自己命名，我的为&lt;code&gt;选择屏幕1&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;接下来就是设置快捷键了，打开&lt;code&gt;系统偏好设置&lt;/code&gt;-&lt;code&gt;键盘&lt;/code&gt;-&lt;code&gt;快捷键&lt;/code&gt;-&lt;code&gt;服务&lt;/code&gt;-&lt;code&gt;通用&lt;/code&gt;，可以看到自己之前保存的脚本，设置快捷键即可:
+&lt;img src=&quot;http://ww3.sinaimg.cn/large/6120fe13jw1eyj5bpe5umj20ig0ea0vm.jpg&quot; alt=&quot;&quot;&gt;&lt;/li&gt;
+&lt;li&gt;按照同样的方法再设置&lt;code&gt;选择屏幕2&lt;/code&gt;即可&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;原理：
+每次按对应的快捷键，就是在你设置的坐标位置上程序执行点击鼠标的操作，这样就实现了切换屏幕焦点的作用，nice！！！&lt;/p&gt;
+</description>
+      <pubDate>Mon, 30 Nov 2015 00:00:00 +0000</pubDate>
+      <link>/blog/switch-multi-display.html</link>
+      <guid isPermaLink="true">/blog/switch-multi-display.html</guid>
+    </item>
+    
+    <item>
+      <title>Ubuntu14.04编译OpenJDK7</title>
+      <description>&lt;p&gt;最近在看&lt;a href=&quot;http://book.douban.com/subject/6522893/&quot;&gt;深入理解Java虚拟机&lt;/a&gt;，第一章有讲到自己编译OpenJDK7，故用Ubuntu14.04实践下。&lt;/p&gt;
+
+&lt;h2 id=&quot;构建编译环境&quot;&gt;构建编译环境&lt;/h2&gt;
+
+&lt;h3 id=&quot;jdk1-7-0_45&quot;&gt;JDK1.7.0_45&lt;/h3&gt;
+
+&lt;p&gt;到oracle官网上下载JDK1.7.0_45，解压到指定目录。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;sudo tar zxvf jdk-7u45-linux-x64.tar.gz -C /usr/lib/jvm
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&quot;ant1-9-6&quot;&gt;Ant1.9.6&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;sudo tar zxvf apache-ant-1.9.6-bin.tar.gz -C /usr/lib/ant
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&quot;配置环境变量&quot;&gt;配置环境变量&lt;/h3&gt;
+
+&lt;p&gt;/etc/profile&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;JAVA_HOME&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/usr/lib/jvm/jdk1.7.0_45  
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;ANT_HOME&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/usr/lib/ant/apache-ant-1.9.6
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CLASSPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;.:&lt;span class=&quot;nv&quot;&gt;$JAVA_HOME&lt;/span&gt;/lib/dt.jar:&lt;span class=&quot;nv&quot;&gt;$JAVA_HOME&lt;/span&gt;/lib/tools.jar    
+&lt;span class=&quot;nv&quot;&gt;PATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$CLASSPATH&lt;/span&gt;:ANT_HOME/bin:&lt;span class=&quot;nv&quot;&gt;$JAVA_HOME&lt;/span&gt;/bin:&lt;span class=&quot;nv&quot;&gt;$PATH&lt;/span&gt;  
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;PATH 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;code&gt;source /etc/profile&lt;/code&gt;使环境变量生效&lt;/p&gt;
+
+&lt;h2 id=&quot;编译&quot;&gt;编译&lt;/h2&gt;
+
+&lt;h3 id=&quot;编写编译脚本&quot;&gt;编写编译脚本&lt;/h3&gt;
+
+&lt;p&gt;在下载的OpenJDK7的源码目录下新建build.sh，编写如下脚本&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/bash  &lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#设置语言  &lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;LANG&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;C   
+&lt;span class=&quot;c&quot;&gt;# JDK安装路径，必须设置&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;ALT_BOOTDIR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/usr/lib/jvm/jdk1.7.0_45
+
+&lt;span class=&quot;c&quot;&gt;#允许自动下载依赖包  &lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;ALLOW_DOWNLOADS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;  
+
+&lt;span class=&quot;c&quot;&gt;#使用预编译头文件，不加这个编译会更慢一些 &lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;USE_PRECOMPILED_HEADER&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;  
+
+&lt;span class=&quot;c&quot;&gt;#要编译的内容  &lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BUILD_LANGTOOLS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true  
+export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BUILD_JAXP&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;false
+export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BUILD_JAXWS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;false
+export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BUILD_CORBA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;false  
+export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BUILD_HOSTPOT&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true  
+export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BUILD_JDK&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;  
+
+&lt;span class=&quot;c&quot;&gt;#要编译的版本  &lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;SKIP_DEBUG_BUILD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;false  
+export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;SKIP_FASTDEBUG_BUILD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true  
+export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;DEBUG_NAME&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;debug  
+
+&lt;span class=&quot;c&quot;&gt;#把它设置为FALSE可以避免javaws和浏览器Java插件之类的部分build  &lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;BUILD_DEPLOY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;false&lt;/span&gt;  
+
+&lt;span class=&quot;c&quot;&gt;#把它设置为false就不会build出安装包。因为安装包里有一些奇怪的依赖  &lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#但即便不build出它也已经得到完整的JDK镜像,所以还是不用build它  &lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;BUILD_INSTALL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;false&lt;/span&gt;  ：
+
+&lt;span class=&quot;c&quot;&gt;#存放编译结果  &lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;ALT_OUTPUTDIR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/home/mango/setup/openjdk/build
+
+&lt;span class=&quot;nb&quot;&gt;unset &lt;/span&gt;CLASSPATH  
+&lt;span class=&quot;nb&quot;&gt;unset &lt;/span&gt;JAVA_HOME  
+&lt;span class=&quot;c&quot;&gt;#make sanity &amp;amp;&amp;amp; make  &lt;/span&gt;
+make 2&amp;gt;&amp;amp;1 | tee &lt;span class=&quot;nv&quot;&gt;$ALT_OUTPUTDIR&lt;/span&gt;/build.log 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&quot;编译&quot;&gt;编译&lt;/h3&gt;
+
+&lt;p&gt;&lt;code&gt;./build.sh&lt;/code&gt;&lt;/p&gt;
+</description>
+      <pubDate>Wed, 15 Jul 2015 00:00:00 +0000</pubDate>
+      <link>/blog/build-openjdk7.html</link>
+      <guid isPermaLink="true">/blog/build-openjdk7.html</guid>
+    </item>
+    
+    <item>
       <title>决策树</title>
       <description>&lt;h2 id=&quot;简介&quot;&gt;简介&lt;/h2&gt;
 

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google-site-verification" content="aexITLS38FdIRzwj25OVWxm87rpa9l-UV0URTyC9cTs" />
   <title>
-    统计学习方法概述
+    Mac多显示器之间的焦点切换
     - Quan Xu
   </title>
   <link rel="stylesheet" href="../css/site.css">
@@ -74,18 +74,18 @@
 <div class="inner">
 <div class = "post-header">
   <h1>
-    统计学习方法概述
+    Mac多显示器之间的焦点切换
   </h1>
   <ul class="meta">
   	<i class="fa fa-calendar"></i>
-  	2015年05月25日
+  	2015年11月30日
   	<i class="space"></i>
   	<i class="fa fa-archive"></i>
-  	<a class="tag" href="/category/#Machine Learning">Machine Learning</a> 
+  	<a class="tag" href="/category/#Tool">Tool</a> 
   	<i class="space"></i>
   	<i class="fa fa-tags"></i>
   	
-  	<i class="space"></i> 字数:705
+  	<i class="space"></i> 字数:407
   </ul>
 </div>
 </div>
@@ -95,62 +95,24 @@
   	<div id="main" class="span9">
   		<div class="post">
 		<div id="content">
-  			<h2 id="统计学习三要素">统计学习三要素</h2>
+  			<p>13寸的MBP屏幕实在太小，故入手了DVI的转接口外接了公司台式机的显示器，内置显示器用来码代码，外接显示器用来看网页等,双屏显示妥妥的。</p>
 
-<h3 id="模型-model">模型(model)</h3>
+<p>但很快发现多显示器之间的焦点切换非常麻烦，每次码代码时需要切换到浏览器查资料都需要用鼠标点外接的显示器，需要切换回来写代码时又要用鼠标点回来，作为一名高效（搞笑）的键盘党，这能忍？？？</p>
 
-<p>模型即为所要学习的条件概率分布或决策函数。
-<code>
-由决策函数表示的模型为非概率模型。
-由条件概率表示的模型为概率模型。
-</code></p>
+<p>于是速度网上查找攻略，果然找到完美解决办法，如下:</p>
 
-<h3 id="策略-strategy">策略(strategy)</h3>
+<ol>
+<li>首先需要到网上搜索并下载Mac上的鼠标点击程序<strong>Cliclick</strong></li>
+<li>接着便是使用神器Automator的时刻了，点击打开程序Automator，选择<code>服务</code>, 接下来的步骤如下图:
+<img src="http://ww1.sinaimg.cn/large/6120fe13jw1eyj531uatkj21ja11eh0d.jpg" alt="">
+写好脚本执行后，需要把脚本保存下来，可以自己命名，我的为<code>选择屏幕1</code></li>
+<li>接下来就是设置快捷键了，打开<code>系统偏好设置</code>-<code>键盘</code>-<code>快捷键</code>-<code>服务</code>-<code>通用</code>，可以看到自己之前保存的脚本，设置快捷键即可:
+<img src="http://ww3.sinaimg.cn/large/6120fe13jw1eyj5bpe5umj20ig0ea0vm.jpg" alt=""></li>
+<li>按照同样的方法再设置<code>选择屏幕2</code>即可</li>
+</ol>
 
-<p>按照什么样的准则学习或选择最优模型。
-<code>
-经验风险最小化(ERM)会产生过拟合问题
-结构风险最小化(SRM)等价于正则化
-</code></p>
-
-<h3 id="算法-algorithm">算法(algorithm)</h3>
-
-<p>学习模型的具体计算方法。</p>
-
-<h2 id="模型选择的方法">模型选择的方法</h2>
-
-<h3 id="正则化-regularization">正则化(regularization)</h3>
-
-<p>正则化即为在经验风险上加一个正则化项，正则化项一般是模型复杂度的单调递增函数，模型越复杂，正则化项就越大。它一般是参数向量的L2范数，作用是选择经验风险与模型复杂度同时较小的模型。</p>
-
-<h3 id="交叉验证-cross-validation">交叉验证(cross-validation)</h3>
-
-<p>将数据集随机分为三部分：</p>
-<div class="highlight"><pre><code class="language-" data-lang="">训练集(training set): 训练模型，占比60%
-交叉验证集(cross validation set): 模型的选择，占比20%
-测试集(test set): 最终对学习方法的评估，占比20%
-</code></pre></div>
-<h2 id="泛化能力">泛化能力</h2>
-
-<p>该方法学习到的模型对未知数据的预测能力。</p>
-
-<h2 id="二类分类问题的常用评价指标f1值">二类分类问题的常用评价指标F1值</h2>
-<div class="highlight"><pre><code class="language-" data-lang="">TP(True Positive): 将正类预测为正类数
-FN(False Negative): 将正类预测为负类数
-FP(False Positive): 将负类预测为正类数
-TN(True Negative): 将负类预测为负类数
-</code></pre></div>
-<p>精确率(precision): $$P = \frac{TP}{TP + FP}$$</p>
-
-<p>召回率(recall): $$R = \frac{TP}{TP + FN}$$</p>
-
-<p>F1值为P和R的调和均值: $$\frac{2}{F1}=\frac{1}{P} + \frac{1}{R}$$</p>
-
-<p>$$F1 = \frac{2TP}{2TP + FP + FN} = \frac{2PR}{P + R}$$</p>
-
-<h2 id="参考资料">参考资料</h2>
-
-<p><a href="https://book.douban.com/subject/10590856/">《统计学习方法》</a></p>
+<p>原理：
+每次按对应的快捷键，就是在你设置的坐标位置上程序执行点击鼠标的操作，这样就实现了切换屏幕焦点的作用，nice！！！</p>
 
   		</div>
 		</div>
@@ -185,15 +147,15 @@ TN(True Negative): 将负类预测为负类数
   <ul class="posts">
     
     <li style="text-align:left">
-      <span>30 Nov 2015 &raquo;</span> <a href="/blog/switch-multi-display.html">Mac多显示器之间的焦点切换</a>
-    </li>
-    
-    <li style="text-align:left">
       <span>15 Jul 2015 &raquo;</span> <a href="/blog/build-openjdk7.html">Ubuntu14.04编译OpenJDK7</a>
     </li>
     
     <li style="text-align:left">
       <span>10 Jun 2015 &raquo;</span> <a href="/blog/decision-tree.html">决策树</a>
+    </li>
+    
+    <li style="text-align:left">
+      <span>05 Jun 2015 &raquo;</span> <a href="/blog/knn.html">k近邻法</a>
     </li>
     
   </ul>
