@@ -2,13 +2,14 @@
 published: true
 layout: post
 title: Mac下配置iTerm2实现快速远程登录
-date: 2015-04-24
+categories: [Tool]
 ---
 
 Mac上的神器太多，今天主要讲下如何配置iTerm2终端实现快速远程登录。
 
 ### **编写脚本**
 需要用到[expect语法](http://linux.die.net/man/1/expect)，代码如下：
+
 ```python
 #!/usr/bin/expect -f
 set username YourUserName    // 设置用户名
@@ -22,8 +23,8 @@ send "$password\r"           // 向进程输入前面设置的密码
 interact                     // 允许用户交互
 expect eof                   // 结束
 ```
+
 保存到一个自己知道的目录，后面配置快捷键需要用到，我存放的目录是`~/program/myscripts/235.sh`。
-<!-- more -->
 
 ### **配置iTerm2**
 在iTerm2下按`command` + `o`（字母o，不是数字0），出现如下图：

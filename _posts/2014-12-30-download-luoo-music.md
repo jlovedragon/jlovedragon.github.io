@@ -1,8 +1,7 @@
 ---
-published: true
 layout: post
 title: "两种方法抓取落网所有专辑的音乐"
-date: 2014-12-30
+categories: [爬虫]
 ---
 
 在落网上听音乐是一个非常享受的事情，唯美的封面、文字，瞬间就觉得自己置身于一个没有喧嚣、没有嘈杂的环境里，一切尽在不言中～
@@ -37,23 +36,24 @@ Q：该用什么第三方库？
 1. 获取最新一期的编号，用Firebug查看html：
 ![](http://ww1.sinaimg.cn/large/6120fe13jw1entxgq1gcnj20fc03cq3o.jpg)
 
-```python
-numberUrl = 'http://www.luoo.net'
-def getTheMaxNumber():
-    # get the html
-    numberResponse = requests.get(numberUrl)
-    numberResponse.encoding = 'utf-8'
-    numberSoup = BeautifulSoup(numberResponse.text, 'lxml')
-    # parse the html and get the number
-    numberText = (numberSoup.find_all('div', 'vol-item-lg')[0]).text
+    ```python
+    numberUrl = 'http://www.luoo.net'
+    def getTheMaxNumber():
+        # get the html
+        numberResponse = requests.get(numberUrl)
+        numberResponse.encoding = 'utf-8'
+        numberSoup = BeautifulSoup(numberResponse.text, 'lxml')
+        # parse the html and get the number
+        numberText = (numberSoup.find_all('div', 'vol-item-lg')[0]).text
 
-    maxNumber = int(re.findall(r'\d+', numberText)[0])
-    return maxNumber
-```
+        maxNumber = int(re.findall(r'\d+', numberText)[0])
+        return maxNumber
+    ```
 
 2. 进行比较，先读取保存文件目录下的number.txt看上次下载到了哪一期，如果最新期数大，则进入下载音乐的函数，否则返回：
-```python
-# compare
+
+    ```python
+    # compare
     if maxNumber > currentNumber:
         for i in range(currentNumber + 1, maxNumber + 1):
             downloadMusic(i)
@@ -64,40 +64,52 @@ def getTheMaxNumber():
         # do nothing
         print '您已经下载了所有的期数，谢谢！\n'
         return
-```
+    ```
 
 3. 建立目录并下载音乐：
 先用Firebug查看页面：
-![](http://ww4.sinaimg.cn/large/6120fe13jw1entxwx6hi8j20ao01vweq.jpg)
-![](http://ww2.sinaimg.cn/large/6120fe13jw1entxzc87ehj20gn01imxk.jpg)
-+ 得到期数ID
-```python
-albumId = (albumSoup.find_all('span', 'vol-number rounded')[0]).text
-```
-+ 得到期数名字用来建立目录，最好是将名字间的空格去掉，不然后面wget时会出现问题
-```python
-albumName = (albumSoup.find_all('span', 'vol-title')[0]).text.replace(' ', '_')
-```
-+ 得到每首歌的名字用来重命名音乐
-```python
-musicList = (albumSoup.find_all('a', 'trackname btn-play'))
-```
-+ 建立目录：
-```python
-isExists = os.path.exists(saveDir)
-if not isExists:
-    os.makedirs(saveDir)
-```
-+ 使用wget下载mp3:
-```python
-for i in range(1, len(musicList) + 1):
-        currentMusicName = musicList[i - 1].text.replace(' ', '_').replace('._', '.').strip('(').strip(')')
-        cmd1 = 'wget ' + musicUrl + str(int(albumId)) + '/' + string.zfill(i,2) + '.mp3 ' + '-O ' + saveDir + currentMusicName + '.mp3'
-        cmd2 = 'wget ' + musicUrl + str(int(albumId)) + '/' + str(i) + '.mp3 ' + '-O ' + saveDir + currentMusicName + '.mp3'
 
-        if os.system(cmd1.encode('utf-8')) != 0:
-            os.system(cmd2.encode('utf-8'))
-```
+![](http://ww4.sinaimg.cn/large/6120fe13jw1entxwx6hi8j20ao01vweq.jpg)
+
+![](http://ww2.sinaimg.cn/large/6120fe13jw1entxzc87ehj20gn01imxk.jpg)
+
+* 得到期数ID
+
+    ```python
+    albumId = (albumSoup.find_all('span', 'vol-number rounded')[0]).text
+    ```
+
+* 得到期数名字用来建立目录，最好是将名字间的空格去掉，不然后面wget时会出现问题
+
+    ```python
+    albumName = (albumSoup.find_all('span', 'vol-title')[0]).text.replace(' ', '_')
+    ```
+
+* 得到每首歌的名字用来重命名音乐
+
+    ```python
+    musicList = (albumSoup.find_all('a', 'trackname btn-play'))
+    ```
+
+* 建立目录：
+
+    ```python
+    isExists = os.path.exists(saveDir)
+    if not isExists:
+        os.makedirs(saveDir)
+    ```
+
+* 使用wget下载mp3:
+
+    ```python
+    for i in range(1, len(musicList) + 1):
+            currentMusicName = musicList[i - 1].text.replace(' ', '_').replace('._', '.').strip('(').strip(')')
+            cmd1 = 'wget ' + musicUrl + str(int(albumId)) + '/' + string.zfill(i,2) + '.mp3 ' + '-O ' + saveDir + currentMusicName + '.mp3'
+            cmd2 = 'wget ' + musicUrl + str(int(albumId)) + '/' + str(i) + '.mp3 ' + '-O ' + saveDir + currentMusicName + '.mp3'
+
+            if os.system(cmd1.encode('utf-8')) != 0:
+                os.system(cmd2.encode('utf-8'))
+    ```
 
 ## 完整代码
 完整代码请移步我的[github](https://github.com/jlovedragon/CrawLuoo/tree/master/requests_bs4)

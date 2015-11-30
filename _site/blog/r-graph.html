@@ -81,11 +81,11 @@
   	2015年02月23日
   	<i class="space"></i>
   	<i class="fa fa-archive"></i>
-  	<a class="tag" href="/category/#"></a> 
+  	<a class="tag" href="/category/#R">R</a> 
   	<i class="space"></i>
   	<i class="fa fa-tags"></i>
   	
-  	<i class="space"></i> 字数:4221
+  	<i class="space"></i> 字数:4481
   </ul>
 </div>
 </div>
@@ -97,25 +97,20 @@
 		<div id="content">
   			<p>前几天关注了一下互联网行业大公司实习岗位的招聘要求，对数据挖掘和算法方向的都有<strong>熟悉R语言的优先</strong>这一项，想起去年自己自学了一段时间的R，但是是走马观花，重点放在了python的学习上，没有扎实去理解和学习，所以最近利用下班时间准备捡起来，而R在绘图方面比Python高了不是一个档次，故在了解了基础语法和概念之后，我便把重点放在绘图上了，下面就具体的记记绘图的各种函数和图形的参数，留待复习与查阅。参考书籍为《R语言实战》。</p>
 
-<!-- more -->
-
 <h2 id="plot-函数">plot()函数</h2>
 
 <p>plot()是R中为对象作图的一个泛型函数，它的输出将根据所绘制对象的类型的不同而变化。先用<code>help(plot)</code>看下介绍。
 用法为<code>plot(x, y, ...)</code>，其中重点说下type参数。</p>
-
-<ul>
-<li>&quot;p&quot; for <strong>p</strong>oints,</li>
-<li>&quot;l&quot; for <strong>l</strong>ines,</li>
-<li>&quot;b&quot; for <strong>b</strong>oth,</li>
-<li>&quot;c&quot; for the lines part alone of &quot;b&quot;,</li>
-<li>&quot;o&quot; for both &#39;overplotted&#39;,</li>
-<li>&quot;h&quot; for &#39;histogram&#39; like(or /Users/quantin/Documents/MakedownBlog/R-graph.md&#39;high-density&#39;) vertical lines,</li>
-<li>&quot;s&quot; for stair steps,</li>
-<li>&quot;S&quot; for other steps,</li>
-<li>&quot;n&quot; for no plotting.</li>
-</ul>
-
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="s2">"p"</span> <span class="k">for</span> <span class="k">**</span>p<span class="k">**</span>oints,
+<span class="s2">"l"</span> <span class="k">for</span> <span class="k">**</span>l<span class="k">**</span>ines,
+<span class="s2">"b"</span> <span class="k">for</span> <span class="k">**</span>b<span class="k">**</span>oth,
+<span class="s2">"c"</span> <span class="k">for </span>the lines part alone of <span class="s2">"b"</span>,
+<span class="s2">"o"</span> <span class="k">for </span>both <span class="s1">'overplotted'</span>,
+<span class="s2">"h"</span> <span class="k">for</span> <span class="s1">'histogram'</span> like<span class="o">(</span>or /Users/quantin/Documents/MakedownBlog/R-graph.md<span class="s1">'high-density'</span><span class="o">)</span> vertical lines,
+<span class="s2">"s"</span> <span class="k">for </span>stair steps,
+<span class="s2">"S"</span> <span class="k">for </span>other steps,
+<span class="s2">"n"</span> <span class="k">for </span>no plotting.
+</code></pre></div>
 <h2 id="图形参数">图形参数</h2>
 
 <p>我们可以通过修改称为图形参数的选项来自定义一副图形的多个特性（字体，颜色，坐标轴，标题）。修改图形参数的一种方法是通过函数par()来指定这些选项。以这种方式设定的参数值除非被再次修改，否则将会在会话结束前一直有效。</p>
@@ -462,15 +457,15 @@ legend(location，title, legend, ...)</p>
   <ul class="posts">
     
     <li style="text-align:left">
-      <span>20 Jun 2015 &raquo;</span> <a href="/blog/ldabout.html">LDA初窥</a>
-    </li>
-    
-    <li style="text-align:left">
       <span>10 Jun 2015 &raquo;</span> <a href="/blog/decision-tree.html">决策树</a>
     </li>
     
     <li style="text-align:left">
       <span>05 Jun 2015 &raquo;</span> <a href="/blog/knn.html">k近邻法</a>
+    </li>
+    
+    <li style="text-align:left">
+      <span>25 May 2015 &raquo;</span> <a href="/blog/statistical-learning-overview.html">统计学习方法概述</a>
     </li>
     
   </ul>

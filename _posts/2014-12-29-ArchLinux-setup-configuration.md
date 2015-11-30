@@ -12,16 +12,24 @@ categories: [Linux]
 
 这块直接参考[ArchWiki](https://wiki.archlinux.org/index.php/Beginners%27_guidehttps://wiki.archlinux.org/)，不喜欢英文的可以选择中文显示，ArchLinux的Wiki写的非常不错，一步一步照着敲肯定不会出错，这里我就写下几个我认为比较重要的地方：
 
-* **制作U盘镜像**
+**制作U盘镜像**
+
 1. Linux用户可以直接用`dd`命令，用U盘替换 /dev/sdx，如 /dev/sdb（不要加上数字，也就是说，不要键入 /dev/sdb1 之类的东西)：
-        ` $ dd bs=4M if=/path/to/archlinux.iso of=/dev/sdx && sync `
+
+    ```sh
+    $ dd bs=4M if=/path/to/archlinux.iso of=/dev/sdx && sync
+    ```
+
 2. Windows用户用Wiki上推荐的USBwriter制作的镜像可能引导不了，推荐大家使用[Win32 Disk Imager](http://sourceforge.net/projects/win32diskimager/)。
 3. 不过用这两种方式装完之后，都需要用Linux上的dd命令往U盘的前512字节写零来恢复它完整的容量：
-        ` $ dd count=1 bs=512 if=/dev/zero of=/dev/sdx && sync `
 
-* **字符乱码问题** locale.gen不要全部配成zh开头的，还是加上en_US，这样安装完之后不会出现乱码。
+    ```sh
+    $ dd count=1 bs=512 if=/dev/zero of=/dev/sdx && sync
+    ```
 
-* **登陆管理器** 如果进入不了图形界面，一定要检查一下自己是否安装了登陆管理器，我现在使用的是slim，轻量级，并配置为随机主题，如果登陆管理器进不了图形界面，一般是配置文件有问题，可以按Ctrl+Alt+F2再开一个终端用root进行修改。
+**字符乱码问题** locale.gen不要全部配成zh开头的，还是加上en_US，这样安装完之后不会出现乱码。
+
+**登陆管理器** 如果进入不了图形界面，一定要检查一下自己是否安装了登陆管理器，我现在使用的是slim，轻量级，并配置为随机主题，如果登陆管理器进不了图形界面，一般是配置文件有问题，可以按Ctrl+Alt+F2再开一个终端用root进行修改。
 
 ## 钟爱的窗口管理器
 
@@ -35,7 +43,7 @@ categories: [Linux]
 
 下面列一下我使用的配置文件中重要的配置(~/.config/herbstluftwm/autostart):
 
-```
+```sh
 Mod=Mod4   # Use the super key as the main modifier
 feh --bg-scale /home/quentin/Entertainment/Pictures/niu.jpg # background
 xcompmgr -c # transparent
@@ -70,7 +78,7 @@ hc keybind Control-F9 spawn deadbeef # music
 `在构建deepin-pygtk时提示：无法下载pygtk_2.24.0-3deepin3.debian.tar.gz`
 故需要在`/etc/pacman.conf`中添加源:
 
-```
+```sh
 [home_metakcahura_arch-deepin_Arch_Extra]
 SigLevel = Never
 Server = http://download.opensuse.org/repositories/home:/metakcahura:/arch-deepin/Arch_Extra/$arch

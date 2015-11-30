@@ -85,7 +85,7 @@
   	<i class="space"></i>
   	<i class="fa fa-tags"></i>
   	
-  	<i class="space"></i> 字数:2229
+  	<i class="space"></i> 字数:2676
   </ul>
 </div>
 </div>
@@ -103,16 +103,21 @@
 
 <p>这块直接参考<a href="https://wiki.archlinux.org/index.php/Beginners%27_guidehttps://wiki.archlinux.org/">ArchWiki</a>，不喜欢英文的可以选择中文显示，ArchLinux的Wiki写的非常不错，一步一步照着敲肯定不会出错，这里我就写下几个我认为比较重要的地方：</p>
 
-<ul>
-<li><strong>制作U盘镜像</strong></li>
-<li>Linux用户可以直接用<code>dd</code>命令，用U盘替换 /dev/sdx，如 /dev/sdb（不要加上数字，也就是说，不要键入 /dev/sdb1 之类的东西)：
-    <code>$ dd bs=4M if=/path/to/archlinux.iso of=/dev/sdx &amp;&amp; sync</code></li>
-<li>Windows用户用Wiki上推荐的USBwriter制作的镜像可能引导不了，推荐大家使用<a href="http://sourceforge.net/projects/win32diskimager/">Win32 Disk Imager</a>。</li>
-<li><p>不过用这两种方式装完之后，都需要用Linux上的dd命令往U盘的前512字节写零来恢复它完整的容量：
-    <code>$ dd count=1 bs=512 if=/dev/zero of=/dev/sdx &amp;&amp; sync</code></p></li>
-<li><p><strong>字符乱码问题</strong> locale.gen不要全部配成zh开头的，还是加上en_US，这样安装完之后不会出现乱码。</p></li>
-<li><p><strong>登陆管理器</strong> 如果进入不了图形界面，一定要检查一下自己是否安装了登陆管理器，我现在使用的是slim，轻量级，并配置为随机主题，如果登陆管理器进不了图形界面，一般是配置文件有问题，可以按Ctrl+Alt+F2再开一个终端用root进行修改。</p></li>
-</ul>
+<p><strong>制作U盘镜像</strong></p>
+
+<ol>
+<li><p>Linux用户可以直接用<code>dd</code>命令，用U盘替换 /dev/sdx，如 /dev/sdb（不要加上数字，也就是说，不要键入 /dev/sdb1 之类的东西)：</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="gp">$ </span>dd <span class="nv">bs</span><span class="o">=</span>4M <span class="k">if</span><span class="o">=</span>/path/to/archlinux.iso <span class="nv">of</span><span class="o">=</span>/dev/sdx <span class="o">&amp;&amp;</span> sync
+</code></pre></div></li>
+<li><p>Windows用户用Wiki上推荐的USBwriter制作的镜像可能引导不了，推荐大家使用<a href="http://sourceforge.net/projects/win32diskimager/">Win32 Disk Imager</a>。</p></li>
+<li><p>不过用这两种方式装完之后，都需要用Linux上的dd命令往U盘的前512字节写零来恢复它完整的容量：</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="gp">$ </span>dd <span class="nv">count</span><span class="o">=</span>1 <span class="nv">bs</span><span class="o">=</span>512 <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>/dev/sdx <span class="o">&amp;&amp;</span> sync
+</code></pre></div></li>
+</ol>
+
+<p><strong>字符乱码问题</strong> locale.gen不要全部配成zh开头的，还是加上en_US，这样安装完之后不会出现乱码。</p>
+
+<p><strong>登陆管理器</strong> 如果进入不了图形界面，一定要检查一下自己是否安装了登陆管理器，我现在使用的是slim，轻量级，并配置为随机主题，如果登陆管理器进不了图形界面，一般是配置文件有问题，可以按Ctrl+Alt+F2再开一个终端用root进行修改。</p>
 
 <h2 id="钟爱的窗口管理器">钟爱的窗口管理器</h2>
 
@@ -127,10 +132,10 @@
 </ol>
 
 <p>下面列一下我使用的配置文件中重要的配置(~/.config/herbstluftwm/autostart):</p>
-<div class="highlight"><pre><code class="language-" data-lang="">Mod=Mod4   # Use the super key as the main modifier
-feh --bg-scale /home/quentin/Entertainment/Pictures/niu.jpg # background
-xcompmgr -c # transparent
-# keybindings
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">Mod</span><span class="o">=</span>Mod4   <span class="c"># Use the super key as the main modifier</span>
+feh --bg-scale /home/quentin/Entertainment/Pictures/niu.jpg <span class="c"># background</span>
+xcompmgr -c <span class="c"># transparent</span>
+<span class="c"># keybindings</span>
 hc keybind Control-bracketleft spawn emacs
 hc keybind Control-F1 spawn deepin-screenshot
 hc keybind Control-F2 spawn chromium
@@ -138,8 +143,8 @@ hc keybind Control-F3 spawn firefox
 hc keybind Control-F4 spawn /opt/ideaIU/bin/idea.sh
 hc keybind Control-F5 spawn virtualbox
 hc keybind Control-F6 spawn python /home/quentin/git/my_profile/OpenOrClosePSMouse.py
-hc keybind Control-F7 spawn evince # PDF
-hc keybind Control-F9 spawn deadbeef # music
+hc keybind Control-F7 spawn evince <span class="c"># PDF</span>
+hc keybind Control-F9 spawn deadbeef <span class="c"># music</span>
 </code></pre></div>
 <h2 id="常用软件">常用软件</h2>
 
@@ -194,11 +199,11 @@ hc keybind Control-F9 spawn deadbeef # music
 <p>需要说的是deepin-screenshot这款截图软件，相比QQ上的截图工具也毫不逊色，但使用命令<code>yaourt -S deepin-screenshot</code>安装会出现:
 <code>在构建deepin-pygtk时提示：无法下载pygtk_2.24.0-3deepin3.debian.tar.gz</code>
 故需要在<code>/etc/pacman.conf</code>中添加源:</p>
-<div class="highlight"><pre><code class="language-" data-lang="">[home_metakcahura_arch-deepin_Arch_Extra]
-SigLevel = Never
-Server = http://download.opensuse.org/repositories/home:/metakcahura:/arch-deepin/Arch_Extra/$arch
-# 若升级时若总是提示文件校验失败，使用备用地址即可
-# Server = http://anorien.csc.warwick.ac.uk/mirrors/download.opensuse.org/repositories/home:/metakcahura:/arch-deepin/Arch_Extra/$arch
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="o">[</span>home_metakcahura_arch-deepin_Arch_Extra]
+SigLevel <span class="o">=</span> Never
+Server <span class="o">=</span> http://download.opensuse.org/repositories/home:/metakcahura:/arch-deepin/Arch_Extra/<span class="nv">$arch</span>
+<span class="c"># 若升级时若总是提示文件校验失败，使用备用地址即可</span>
+<span class="c"># Server = http://anorien.csc.warwick.ac.uk/mirrors/download.opensuse.org/repositories/home:/metakcahura:/arch-deepin/Arch_Extra/$arch</span>
 </code></pre></div>
 <p>再直接用pacman安装即可，详细请看我之前再Arch Forums上发的帖子<a href="https://bbs.archlinuxcn.org/viewtopic.php?id=3040">用yaourt安装deepin-screenshot失败，archlinux12.01-ideapadY460</a></p>
 
@@ -239,15 +244,15 @@ Server = http://download.opensuse.org/repositories/home:/metakcahura:/arch-deepi
   <ul class="posts">
     
     <li style="text-align:left">
-      <span>20 Jun 2015 &raquo;</span> <a href="/blog/ldabout.html">LDA初窥</a>
-    </li>
-    
-    <li style="text-align:left">
       <span>10 Jun 2015 &raquo;</span> <a href="/blog/decision-tree.html">决策树</a>
     </li>
     
     <li style="text-align:left">
       <span>05 Jun 2015 &raquo;</span> <a href="/blog/knn.html">k近邻法</a>
+    </li>
+    
+    <li style="text-align:left">
+      <span>25 May 2015 &raquo;</span> <a href="/blog/statistical-learning-overview.html">统计学习方法概述</a>
     </li>
     
   </ul>

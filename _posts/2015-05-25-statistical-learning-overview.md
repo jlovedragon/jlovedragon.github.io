@@ -1,8 +1,7 @@
 ---
-published: true
 layout: post
 title: 统计学习方法概述
-date: 2015-05-25
+categories: [Machine Learning]
 ---
 
 ## 统计学习三要素
@@ -23,7 +22,6 @@ date: 2015-05-25
 ### 算法(algorithm)
 学习模型的具体计算方法。
 
-<!-- more -->
 
 ## 模型选择的方法
 ### 正则化(regularization)
@@ -31,6 +29,7 @@ date: 2015-05-25
 
 ### 交叉验证(cross-validation)
 将数据集随机分为三部分：
+
 ```
 训练集(training set): 训练模型，占比60%
 交叉验证集(cross validation set): 模型的选择，占比20%

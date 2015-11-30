@@ -81,11 +81,11 @@
   	2014年12月30日
   	<i class="space"></i>
   	<i class="fa fa-archive"></i>
-  	<a class="tag" href="/category/#"></a> 
+  	<a class="tag" href="/category/#爬虫">爬虫</a> 
   	<i class="space"></i>
   	<i class="fa fa-tags"></i>
   	
-  	<i class="space"></i> 字数:2979
+  	<i class="space"></i> 字数:6197
   </ul>
 </div>
 </div>
@@ -135,9 +135,8 @@
 <p>两套方案的思路都是一样的：首先我得知道最新一期的编号，如果比我已经下载的期数大，则从此期数开始遍历一直到已经爬过的期数，进入每期单独的页面，得到每期的名字用于建立目录，每期的歌单有多少歌以及歌名用于下载和重命名。代码这块我就只讲<code>Requests</code>+<code>BeautifulSoup</code>:</p>
 
 <ol>
-<li>获取最新一期的编号，用Firebug查看html：
-<img src="http://ww1.sinaimg.cn/large/6120fe13jw1entxgq1gcnj20fc03cq3o.jpg" alt=""></li>
-</ol>
+<li><p>获取最新一期的编号，用Firebug查看html：
+<img src="http://ww1.sinaimg.cn/large/6120fe13jw1entxgq1gcnj20fc03cq3o.jpg" alt=""></p>
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">numberUrl</span> <span class="o">=</span> <span class="s">'http://www.luoo.net'</span>
 <span class="k">def</span> <span class="nf">getTheMaxNumber</span><span class="p">():</span>
     <span class="c"># get the html</span>
@@ -149,56 +148,53 @@
 
     <span class="n">maxNumber</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">d+'</span><span class="p">,</span> <span class="n">numberText</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">maxNumber</span>
-</code></pre></div>
-<ol>
-<li><p>进行比较，先读取保存文件目录下的number.txt看上次下载到了哪一期，如果最新期数大，则进入下载音乐的函数，否则返回：
-```python</p>
-
-<h1 id="compare">compare</h1>
-
-<p>if maxNumber &gt; currentNumber:
-    for i in range(currentNumber + 1, maxNumber + 1):
-        downloadMusic(i)
-    # after download the music, should write the right number to number.txt
-    numberFile.write(str(maxNumber) + &#39;\t&#39; + time.strftime(&#39;%Y-%m-%d %H:%M:%S&#39;) + &#39;\n&#39;)
-    numberFile.close()
-else:
-    # do nothing
-    print &#39;您已经下载了所有的期数，谢谢！\n&#39;
-    return
-```</p></li>
+</code></pre></div></li>
+<li><p>进行比较，先读取保存文件目录下的number.txt看上次下载到了哪一期，如果最新期数大，则进入下载音乐的函数，否则返回：</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># compare</span>
+<span class="k">if</span> <span class="n">maxNumber</span> <span class="o">&gt;</span> <span class="n">currentNumber</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">currentNumber</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">maxNumber</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">downloadMusic</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="c"># after download the music, should write the right number to number.txt</span>
+    <span class="n">numberFile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">maxNumber</span><span class="p">)</span> <span class="o">+</span> <span class="s">'</span><span class="se">\t</span><span class="s">'</span> <span class="o">+</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">'</span><span class="si">%</span><span class="s">Y-</span><span class="si">%</span><span class="s">m-</span><span class="si">%</span><span class="s">d </span><span class="si">%</span><span class="s">H:</span><span class="si">%</span><span class="s">M:</span><span class="si">%</span><span class="s">S'</span><span class="p">)</span> <span class="o">+</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    <span class="n">numberFile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c"># do nothing</span>
+    <span class="k">print</span> <span class="s">'您已经下载了所有的期数，谢谢！</span><span class="se">\n</span><span class="s">'</span>
+    <span class="k">return</span>
+</code></pre></div></li>
 <li><p>建立目录并下载音乐：
-先用Firebug查看页面：
-<img src="http://ww4.sinaimg.cn/large/6120fe13jw1entxwx6hi8j20ao01vweq.jpg" alt="">
-<img src="http://ww2.sinaimg.cn/large/6120fe13jw1entxzc87ehj20gn01imxk.jpg" alt=""></p></li>
-<li><p>得到期数ID
-<code>python
-albumId = (albumSoup.find_all(&#39;span&#39;, &#39;vol-number rounded&#39;)[0]).text
-</code></p></li>
-<li><p>得到期数名字用来建立目录，最好是将名字间的空格去掉，不然后面wget时会出现问题
-<code>python
-albumName = (albumSoup.find_all(&#39;span&#39;, &#39;vol-title&#39;)[0]).text.replace(&#39; &#39;, &#39;_&#39;)
-</code></p></li>
-<li><p>得到每首歌的名字用来重命名音乐
-<code>python
-musicList = (albumSoup.find_all(&#39;a&#39;, &#39;trackname btn-play&#39;))
-</code></p></li>
-<li><p>建立目录：
-<code>python
-isExists = os.path.exists(saveDir)
-if not isExists:
-os.makedirs(saveDir)
-</code></p></li>
-<li><p>使用wget下载mp3:
-```python
-for i in range(1, len(musicList) + 1):
-    currentMusicName = musicList[i - 1].text.replace(&#39; &#39;, &#39;<u>&#39;).replace(&#39;.</u>&#39;, &#39;.&#39;).strip(&#39;(&#39;).strip(&#39;)&#39;)
-    cmd1 = &#39;wget &#39; + musicUrl + str(int(albumId)) + &#39;/&#39; + string.zfill(i,2) + &#39;.mp3 &#39; + &#39;-O &#39; + saveDir + currentMusicName + &#39;.mp3&#39;
-    cmd2 = &#39;wget &#39; + musicUrl + str(int(albumId)) + &#39;/&#39; + str(i) + &#39;.mp3 &#39; + &#39;-O &#39; + saveDir + currentMusicName + &#39;.mp3&#39;</p>
-<div class="highlight"><pre><code class="language-" data-lang="">if os.system(cmd1.encode('utf-8')) != 0:
-    os.system(cmd2.encode('utf-8'))
-</code></pre></div><div class="highlight"><pre><code class="language-" data-lang=""></code></pre></div></li>
+先用Firebug查看页面：</p></li>
 </ol>
+
+<p><img src="http://ww4.sinaimg.cn/large/6120fe13jw1entxwx6hi8j20ao01vweq.jpg" alt=""></p>
+
+<p><img src="http://ww2.sinaimg.cn/large/6120fe13jw1entxzc87ehj20gn01imxk.jpg" alt=""></p>
+
+<ul>
+<li><p>得到期数ID</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">albumId</span> <span class="o">=</span> <span class="p">(</span><span class="n">albumSoup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">'span'</span><span class="p">,</span> <span class="s">'vol-number rounded'</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">text</span>
+</code></pre></div></li>
+<li><p>得到期数名字用来建立目录，最好是将名字间的空格去掉，不然后面wget时会出现问题</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">albumName</span> <span class="o">=</span> <span class="p">(</span><span class="n">albumSoup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">'span'</span><span class="p">,</span> <span class="s">'vol-title'</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">' '</span><span class="p">,</span> <span class="s">'_'</span><span class="p">)</span>
+</code></pre></div></li>
+<li><p>得到每首歌的名字用来重命名音乐</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">musicList</span> <span class="o">=</span> <span class="p">(</span><span class="n">albumSoup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'trackname btn-play'</span><span class="p">))</span>
+</code></pre></div></li>
+<li><p>建立目录：</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">isExists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">saveDir</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">isExists</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">saveDir</span><span class="p">)</span>
+</code></pre></div></li>
+<li><p>使用wget下载mp3:</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">musicList</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">currentMusicName</span> <span class="o">=</span> <span class="n">musicList</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">' '</span><span class="p">,</span> <span class="s">'_'</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'._'</span><span class="p">,</span> <span class="s">'.'</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">'('</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">')'</span><span class="p">)</span>
+        <span class="n">cmd1</span> <span class="o">=</span> <span class="s">'wget '</span> <span class="o">+</span> <span class="n">musicUrl</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">albumId</span><span class="p">))</span> <span class="o">+</span> <span class="s">'/'</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="s">'.mp3 '</span> <span class="o">+</span> <span class="s">'-O '</span> <span class="o">+</span> <span class="n">saveDir</span> <span class="o">+</span> <span class="n">currentMusicName</span> <span class="o">+</span> <span class="s">'.mp3'</span>
+        <span class="n">cmd2</span> <span class="o">=</span> <span class="s">'wget '</span> <span class="o">+</span> <span class="n">musicUrl</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">albumId</span><span class="p">))</span> <span class="o">+</span> <span class="s">'/'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s">'.mp3 '</span> <span class="o">+</span> <span class="s">'-O '</span> <span class="o">+</span> <span class="n">saveDir</span> <span class="o">+</span> <span class="n">currentMusicName</span> <span class="o">+</span> <span class="s">'.mp3'</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd1</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd2</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">))</span>
+</code></pre></div></li>
+</ul>
 
 <h2 id="完整代码">完整代码</h2>
 
@@ -246,15 +242,15 @@ for i in range(1, len(musicList) + 1):
   <ul class="posts">
     
     <li style="text-align:left">
-      <span>20 Jun 2015 &raquo;</span> <a href="/blog/ldabout.html">LDA初窥</a>
-    </li>
-    
-    <li style="text-align:left">
       <span>10 Jun 2015 &raquo;</span> <a href="/blog/decision-tree.html">决策树</a>
     </li>
     
     <li style="text-align:left">
       <span>05 Jun 2015 &raquo;</span> <a href="/blog/knn.html">k近邻法</a>
+    </li>
+    
+    <li style="text-align:left">
+      <span>25 May 2015 &raquo;</span> <a href="/blog/statistical-learning-overview.html">统计学习方法概述</a>
     </li>
     
   </ul>

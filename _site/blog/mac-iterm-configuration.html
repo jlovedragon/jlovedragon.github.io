@@ -81,11 +81,11 @@
   	2015年04月24日
   	<i class="space"></i>
   	<i class="fa fa-archive"></i>
-  	<a class="tag" href="/category/#"></a> 
+  	<a class="tag" href="/category/#Tool">Tool</a> 
   	<i class="space"></i>
   	<i class="fa fa-tags"></i>
   	
-  	<i class="space"></i> 字数:755
+  	<i class="space"></i> 字数:1335
   </ul>
 </div>
 </div>
@@ -99,24 +99,20 @@
 
 <h3 id="编写脚本"><strong>编写脚本</strong></h3>
 
-<p>需要用到<a href="http://linux.die.net/man/1/expect">expect语法</a>，代码如下：
-```python</p>
+<p>需要用到<a href="http://linux.die.net/man/1/expect">expect语法</a>，代码如下：</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c">#!/usr/bin/expect -f</span>
+<span class="nb">set</span> <span class="n">username</span> <span class="n">YourUserName</span>    <span class="o">//</span> <span class="err">设置用户名</span>
+<span class="nb">set</span> <span class="n">host</span> <span class="o">***.***.***.***</span>     <span class="o">//</span> <span class="err">设置主机</span><span class="n">IP</span>
+<span class="nb">set</span> <span class="n">password</span> <span class="n">YourPassword</span>    <span class="o">//</span> <span class="err">设置密码</span>
+<span class="nb">set</span> <span class="n">time</span> <span class="o">-</span><span class="mi">1</span>                  <span class="o">//</span> <span class="err">设置永不超时</span>
 
-<h1 id="usr-bin-expect-f">!/usr/bin/expect -f</h1>
-
-<p>set username YourUserName    // 设置用户名
-set host <strong><em>.</em></strong>.<strong><em>.</em></strong>     // 设置主机IP
-set password YourPassword    // 设置密码
-set time -1                  // 设置永不超时</p>
-
-<p>spawn ssh $username@$host    // 启动一个新进程
-expect &quot;<em>assword:</em>&quot;          // 进程返回带有assword:字符时
-send &quot;$password\r&quot;           // 向进程输入前面设置的密码
-interact                     // 允许用户交互
-expect eof                   // 结束
-``<code>
-保存到一个自己知道的目录，后面配置快捷键需要用到，我存放的目录是</code>~/program/myscripts/235.sh`。
-&lt;!-- more --&gt;</p>
+<span class="n">spawn</span> <span class="n">ssh</span> <span class="err">$</span><span class="n">username</span><span class="err">@$</span><span class="n">host</span>    <span class="o">//</span> <span class="err">启动一个新进程</span>
+<span class="n">expect</span> <span class="s">"*assword:*"</span>          <span class="o">//</span> <span class="err">进程返回带有</span><span class="n">assword</span><span class="p">:</span><span class="err">字符时</span>
+<span class="n">send</span> <span class="s">"$password</span><span class="se">\r</span><span class="s">"</span>           <span class="o">//</span> <span class="err">向进程输入前面设置的密码</span>
+<span class="n">interact</span>                     <span class="o">//</span> <span class="err">允许用户交互</span>
+<span class="n">expect</span> <span class="n">eof</span>                   <span class="o">//</span> <span class="err">结束</span>
+</code></pre></div>
+<p>保存到一个自己知道的目录，后面配置快捷键需要用到，我存放的目录是<code>~/program/myscripts/235.sh</code>。</p>
 
 <h3 id="配置iterm2"><strong>配置iTerm2</strong></h3>
 
@@ -168,15 +164,15 @@ ssh成功登录，直接按快捷键就能快速登录~ </p>
   <ul class="posts">
     
     <li style="text-align:left">
-      <span>20 Jun 2015 &raquo;</span> <a href="/blog/ldabout.html">LDA初窥</a>
-    </li>
-    
-    <li style="text-align:left">
       <span>10 Jun 2015 &raquo;</span> <a href="/blog/decision-tree.html">决策树</a>
     </li>
     
     <li style="text-align:left">
       <span>05 Jun 2015 &raquo;</span> <a href="/blog/knn.html">k近邻法</a>
+    </li>
+    
+    <li style="text-align:left">
+      <span>25 May 2015 &raquo;</span> <a href="/blog/statistical-learning-overview.html">统计学习方法概述</a>
     </li>
     
   </ul>

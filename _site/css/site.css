@@ -521,12 +521,12 @@ header h1.title a:hover {
 
 .post pre{
   	font-size:.8rem;  /*设置代码字体大小*/
-  	font-family: Consolas,"Liberation Mono",Courier,monospace;/*设置代码字体类型*/
+  	font-family: Courier,Consolas,"Liberation Mono",monospace;/*设置代码字体类型*/
 }
 
 .post pre code{
     font-size:.8rem;  /*设置代码字体大小*/
-    font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+    font-family: Courier,Menlo,Monaco,Consolas,"Courier New",monospace;
     border: none;
     line-height: 170%;
 }
@@ -537,7 +537,7 @@ header h1.title a:hover {
   background-color: #F4F4F4;
   border: 1px solid #eee;
   padding: 0 .2em;
-  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+  font-family: Courier,Menlo,Monaco,Consolas,"Courier New",monospace;
   border-radius: 4px;
 }
 
