@@ -36,9 +36,12 @@
 &lt;li&gt;&lt;a href=&quot;http://book.douban.com/subject/25867042/&quot;&gt;《大型网站系统与Java中间件开发实践》&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;非技术类的数很少，但也都是经典：
-1. &lt;a href=&quot;http://book.douban.com/subject/7163250/&quot;&gt;《明朝那些事儿》&lt;/a&gt;
-2. &lt;a href=&quot;http://book.douban.com/subject/6953273/&quot;&gt;《盗墓笔记》&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;非技术类的数很少，但也都是经典：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;http://book.douban.com/subject/7163250/&quot;&gt;《明朝那些事儿》&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://book.douban.com/subject/6953273/&quot;&gt;《盗墓笔记》&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
 
 &lt;p&gt;电影：&lt;/p&gt;
 
@@ -59,8 +62,8 @@
 &lt;p&gt;新的一年，马上就要去鹅厂实习和工作，踏踏实实好好工作与学习。&lt;/p&gt;
 </description>
       <pubDate>Thu, 31 Dec 2015 00:00:00 +0000</pubDate>
-      <link>/blog/2015summary.html</link>
-      <guid isPermaLink="true">/blog/2015summary.html</guid>
+      <link>/blog/summary2015.html</link>
+      <guid isPermaLink="true">/blog/summary2015.html</guid>
     </item>
     
     <item>
@@ -1619,8 +1622,8 @@ str是不可变对象，list是可变对象&lt;/li&gt;
 好像没啥要扯的了，就这样吧，祝自己本命年红红火火，工作爱情双丰收吧～&lt;/p&gt;
 </description>
       <pubDate>Wed, 31 Dec 2014 00:00:00 +0000</pubDate>
-      <link>/blog/2014summary.html</link>
-      <guid isPermaLink="true">/blog/2014summary.html</guid>
+      <link>/blog/summary2014.html</link>
+      <guid isPermaLink="true">/blog/summary2014.html</guid>
     </item>
     
     <item>
