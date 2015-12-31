@@ -1,0 +1,200 @@
+<p>用了将近3个月的python，也写了一些小程序，前几天看了<a href="http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000">廖雪峰的Python教程</a>，感觉写的很不错，故从头到尾看了几遍，摘录其中我认为应该掌握的部分，即为这篇小结。</p>
+
+<hr />
+<p>### python缺点
+* 运行速度慢，解释型语言
+* 代码不能加密</p>
+
+<h3 id="python">python解释器</h3>
+<ul>
+  <li>CPython</li>
+  <li>IPython</li>
+</ul>
+
+<p><strong>print语句用逗号隔开就可以连成一串输出</strong></p>
+
+<p><strong>python是大小写敏感的</strong></p>
+
+<h3 id="section">缩进的利与弊</h3>
+<ul>
+  <li>好处：
+    <ol>
+      <li>强迫你写出格式化的代码</li>
+      <li>强迫你写出缩进较少的代码，你会倾向与把一段很长的代码拆分成若干函数，从而得到缩进较少的代码</li>
+    </ol>
+  </li>
+  <li>坏处：
+    <ol>
+      <li>“复制-粘贴”功能失效，这是最坑爹的地方。当你重构代码时，粘贴过去的代码必须重新检查缩进是否正确。</li>
+      <li>IDE很难像Java代码那样格式化Python代码</li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="section-1">字符编码</h3>
+<p>Unicode标准把所有语言都统一到一套编码中，如果统一成Unicode编码，乱码问题虽然从此消失，但如果你写的文本全是英文的话，用Unicode编码比ASCII编码需要多一倍的存储空间，所以就出现了把Unicode编码转化为”可变长编码”的UTF-8编码。</p>
+
+<p><code>python
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+</code></p>
+
+<h3 id="listtupledictset">list、tuple、dict、set</h3>
+<ul>
+  <li>list：列表[]，可以随时添加和删除其中的元素。add添加，pop删除</li>
+  <li>tuple：元组()，一旦初始化就不能修改。个人觉得有点像Java中的枚举（有待考证），tuple的单元素写法(a,)</li>
+  <li>dict：字典[:]，在Java中称为map，使用键-值（key-value）存储，具有极快的查找速度，但内存浪费多
+    <ul>
+      <li>dict的key必须是不可变对象</li>
+    </ul>
+  </li>
+  <li>set：集合([])，元素不能重复，要创建一个set，需要提供一个list作为输入集合，add添加，remove删除
+### 不可变对象
+str是不可变对象，list是可变对象</li>
+</ul>
+
+<h3 id="section-2">函数</h3>
+<ul>
+  <li>pass语句什么都不做，可以用来作为占位符</li>
+  <li>函数的默认参数必须是不可变对象</li>
+  <li>可变参数允许你传入0个或任意个参数，这些可变参数在函数调用时自动组装为一个tuple</li>
+  <li>关键字参数允许你传入0个或任意个含参数名的参数，这些关键字参数在函数内部自动组装成一个dict</li>
+  <li>*args是可变参数，args接收的是tuple</li>
+  <li>**kw是关键字参数，kw接收的是dict</li>
+</ul>
+
+<h3 id="section-3">列表生成式</h3>
+<pre><code>[x # x for x in range(1, 11)]
+</code></pre>
+
+<h3 id="section-4">函数式编程</h3>
+<ul>
+  <li>map/reduce/filter
+    <ul>
+      <li>map()函数接收两个参数，一个是函数，一个是序列，map将传入的函数一次作用到序列的每个元素，并把结果作为行的list返回</li>
+      <li>reduce()函数也接受两个参数，和map一样，一个参数是函数，一个是序列，不同的是，reduce()把结果继续和序列的下一个元素做累积计算</li>
+      <li>filter()函数用于过滤序列，参数类型和map()一样，不同的是，filter()把传入的函数一次作用于每个元素，然后根据返回值是True还是False决定保留或丢弃该元素</li>
+    </ul>
+  </li>
+  <li>排序算法
+    <ul>
+      <li>sorted()也是一个高阶函数，可以接收一个比较函数来实现自定义的排序</li>
+    </ul>
+  </li>
+  <li>返回函数
+    <ul>
+      <li>闭包(Closure)程序：返回函数不要引用任何循环变量，或者后续会发生变化的变量</li>
+    </ul>
+  </li>
+  <li>匿名函数
+    <ul>
+      <li>关键字lambda表示匿名函数，冒号前面的x表示函数参数（lambda x: **)</li>
+      <li>匿名函数只能有一个表达式，不用写return</li>
+      <li>用匿名函数有个好处，因为函数没有名字，不必担心函数名冲突</li>
+    </ul>
+  </li>
+  <li>装饰器</li>
+  <li>偏函数
+    <ul>
+      <li>functools.partial的作用就是把一个函数的某些值固定住（也就是设置默认值），返回一个新的函数</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="section-5">面向对象编程</h3>
+<ul>
+  <li>类和实例
+    <ul>
+      <li>类是创建实例的模板，实例是一个一个具体的对象。</li>
+    </ul>
+  </li>
+  <li>访问限制
+    <ul>
+      <li>要让内部属性不被外部访问，可以把属性的名称前加上两个下划线__，在python中，实例的变量名如果以__开头，就变成了一个私有变量（private），只有内部能访问，外部不能访问。</li>
+    </ul>
+  </li>
+  <li>继承和多态
+    <ul>
+      <li>继承可以把父类的所有功能都直接拿过来，这样就不必从零做起，子类只需要新增自己特有的方法，也可以把父类不适合的方法覆盖重写。</li>
+    </ul>
+  </li>
+  <li>获取对象信息
+    <ul>
+      <li>type():判断对象类型，返回type类型</li>
+      <li>isinstance():判断class的类型，判断的是一个对象是否是该类型本身，或者位于该类型的父继承链上。</li>
+      <li>使用type()判断的基本类型也可以用isinstance()判断</li>
+      <li>dir():获得一个对象的所有属性和方法，返回一个包含字符串的list</li>
+    </ul>
+  </li>
+  <li>使用<strong>__slots__</strong>:限制class能添加的属性，__slots__定义的属性仅对当前类起作用，对继承的子类不起作用</li>
+  <li>使用@property:python内置的@property装饰器负责把一个方法变成属性调用的</li>
+  <li>多重继承</li>
+</ul>
+
+<h3 id="section-6">错误、调试和测试</h3>
+<ul>
+  <li>可以在except语句块后面加一个else，但没有错误发生时，会自动执行else语句</li>
+  <li>try…except捕获错误可以跨越多层调用</li>
+  <li>raise抛出异常</li>
+</ul>
+
+<h3 id="io">IO编程</h3>
+<ul>
+  <li>with语句为try/finally编程范式的一种替代，用于对资源访问进行控制的场合。</li>
+  <li>with语句确保不管使用过程中是否发生异常都执行必要的”清理”操作，释放资源，比如文件使用后自动关闭、线程中锁的自动获取和释放等。</li>
+  <li>os.path.abspath()、os.path.join(,)、os.path.split(,)、os.path.splittext()</li>
+  <li>序列化：把变量从内存中变成可存储或传输的过程，在Python中称为pickling，模块为cPickle和pickle。推荐使用json</li>
+</ul>
+
+<h3 id="section-7">进程与线程</h3>
+<ul>
+  <li>多进程与多线程最大的不同在于，多进程中，同一个变量，各自有一份拷贝存在于每个进程中，互不影响，而多线程中，所有变量都由所有线程共享</li>
+  <li>进程 vs 线程</li>
+  <li>计算密集型 vs IO密集型</li>
+  <li>异步IO</li>
+  <li>分布式进程</li>
+</ul>
+
+<h3 id="section-8">正则表达式</h3>
+<p>pass</p>
+
+<h3 id="section-9">常用内建模块</h3>
+<ul>
+  <li>collections
+** namedtuple | deque | defaultdict | OrderedDict | * base64</li>
+  <li>struct</li>
+  <li>hashlib</li>
+  <li>itertools</li>
+</ul>
+
+<h3 id="web">Web开发</h3>
+<ul>
+  <li>Web应用开发经历的阶段：
+    <ul>
+      <li>静态Web页面：由文本编辑器直接编辑并生成静态的HTML页面，如果要修改Web页面的内容，就需要再次编辑HTML源文件，早期的互联网Web页面就是静态的。</li>
+      <li>CGI：由于静态Web页面无法和用户交互，比如用户填写了一个注册表单，静态Web页面就无法处理。要处理用户发送的动态数据，出现了Common Gateway Interface，简称CGI，用C和C++编写</li>
+      <li>ASP\JSP\PHP：由于Web应用特点是修改频繁，用C和C++这样的低级语言非常不适合Web开发，而脚本语言由于开发效率高，与HTML结合紧密，因此，迅速取代了CGI模式。</li>
+      <li>MVC：为了解决直接用脚本语言嵌入HTML导致的可维护性差的问题，Web应用也引入了Model-View-Controller的模式，来简化Web开发。</li>
+    </ul>
+  </li>
+  <li>HTTP请求的流程：
+    <ol>
+      <li>浏览器首先向服务器发送HTTP请求，请求包括：
+        <ul>
+          <li>方法：GET还是POST，GET仅请求资源，POST会附带用户数据</li>
+          <li>路径：/full/url/path；</li>
+          <li>域名：由Host头指定：Host：www.sina.com.cn</li>
+          <li>以及其他一些相关Header，如果是POST，那么请求还包括一个Body，包含用户数据</li>
+        </ul>
+      </li>
+      <li>服务器向浏览器返回HTTP响应，响应包括：
+        <ul>
+          <li>响应代码：200表示成功，3xx表示重定向，4xx表示客户端发送的请求有错误，5xx表示服务器端处理时发生错误</li>
+          <li>响应类型：有Content-Type指定</li>
+        </ul>
+      </li>
+      <li>如果浏览器还需要继续向服务器请求其他资源，比如图片，就再次发出HTTP请求，重复步骤1、2</li>
+    </ol>
+  </li>
+  <li>WSGI接口: Web Server Gateway Interface</li>
+</ul>
